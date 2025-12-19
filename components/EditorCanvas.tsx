@@ -77,37 +77,45 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef }) => {
               </h2>
             </div>
 
-            {/* Devices Container - Absolute positioning center */}
-            <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
-                <div className="absolute top-1/2 left-1/2 w-0 h-0"> {/* Center point */}
+            {/* Devices Container - Absolute positioning center with 3D perspective */}
+            <div
+                className="absolute inset-0 z-10 pointer-events-none overflow-hidden"
+                style={{ perspective: '2000px' }}
+            >
+                <div
+                    className="absolute top-1/2 left-1/2 w-0 h-0"
+                    style={{ transformStyle: 'preserve-3d' }}
+                >
                     {devices.map((device) => {
-                        const shadowStyle = device.shadow.enabled 
+                        const shadowStyle = device.shadow.enabled
                         ? `0px ${device.shadow.offsetY}px ${device.shadow.blur}px ${device.shadow.color}${Math.round(device.shadow.opacity * 255).toString(16).padStart(2, '0')}`
                         : 'none';
 
                         return (
-                            <div 
+                            <div
                                 key={device.id}
-                                style={{ 
+                                style={{
                                     position: 'absolute',
                                     left: 0,
                                     top: 0,
-                                    width: '800px', // Base width reference
-                                    // Translate to center the device on the point, then apply user transforms
+                                    width: '800px',
+                                    transformStyle: 'preserve-3d',
                                     transform: `
-                                        translate(-50%, -50%) 
-                                        translate(${device.x}px, ${device.y}px) 
-                                        rotate(${device.rotation}deg) 
+                                        translate(-50%, -50%)
+                                        translate(${device.x}px, ${device.y}px)
+                                        rotateX(${device.rotateX || 0}deg)
+                                        rotateY(${device.rotateY || 0}deg)
+                                        rotate(${device.rotation}deg)
                                         scale(${device.scale})
-                                    `, 
+                                    `,
                                     transformOrigin: 'center center',
                                     zIndex: device.zIndex,
                                     filter: `drop-shadow(${shadowStyle})`
                                 }}
                             >
-                                <DeviceFrame 
-                                    type={device.type} 
-                                    imageSrc={device.image} 
+                                <DeviceFrame
+                                    type={device.type}
+                                    imageSrc={device.image}
                                 />
                             </div>
                         );

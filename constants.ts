@@ -18,6 +18,8 @@ export const DEFAULT_SCREEN_CONFIG: ScreenConfig = {
       x: 0,
       y: 0,
       rotation: 0,
+      rotateX: 0,
+      rotateY: 0,
       scale: 0.9,
       shadow: DEFAULT_SHADOW,
       zIndex: 1,
@@ -61,7 +63,7 @@ export const TEMPLATES: Template[] = [
     description: 'One centered device',
     config: {
       devices: [
-        { id: 't1_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: 0, y: 0, rotation: 0, scale: 0.9, shadow: DEFAULT_SHADOW, zIndex: 1 }
+        { id: 't1_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: 0, y: 0, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.9, shadow: DEFAULT_SHADOW, zIndex: 1 }
       ],
       text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'center' }
     }
@@ -71,8 +73,8 @@ export const TEMPLATES: Template[] = [
     description: 'Two phones tilting inwards',
     config: {
       devices: [
-        { id: 't2_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: -250, y: 100, rotation: -15, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 1 },
-        { id: 't2_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 250, y: 100, rotation: 15, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 2 }
+        { id: 't2_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: -250, y: 100, rotation: -15, rotateX: 0, rotateY: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't2_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 250, y: 100, rotation: 15, rotateX: 0, rotateY: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 2 }
       ],
       text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top' }
     }
@@ -82,9 +84,9 @@ export const TEMPLATES: Template[] = [
     description: 'A presentation trio',
     config: {
       devices: [
-        { id: 't3_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: -400, y: 150, rotation: -10, scale: 0.75, shadow: DEFAULT_SHADOW, zIndex: 1 },
-        { id: 't3_d3', type: DeviceType.IPHONE_15_PRO, image: null, x: 400, y: 150, rotation: 10, scale: 0.75, shadow: DEFAULT_SHADOW, zIndex: 1 },
-        { id: 't3_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 0, y: 50, rotation: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 2 }
+        { id: 't3_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: -400, y: 150, rotation: -10, rotateX: 0, rotateY: 0, scale: 0.75, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't3_d3', type: DeviceType.IPHONE_15_PRO, image: null, x: 400, y: 150, rotation: 10, rotateX: 0, rotateY: 0, scale: 0.75, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't3_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 0, y: 50, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 2 }
       ],
       text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top' }
     }
@@ -94,10 +96,31 @@ export const TEMPLATES: Template[] = [
     description: 'Show responsive design',
     config: {
       devices: [
-        { id: 't4_d1', type: DeviceType.TABLET, image: null, x: -100, y: 100, rotation: 0, scale: 0.9, shadow: DEFAULT_SHADOW, zIndex: 1 },
-        { id: 't4_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 350, y: 400, rotation: -5, scale: 0.6, shadow: DEFAULT_SHADOW, zIndex: 2 }
+        { id: 't4_d1', type: DeviceType.TABLET, image: null, x: -100, y: 100, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.9, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't4_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 350, y: 400, rotation: -5, rotateX: 0, rotateY: 0, scale: 0.6, shadow: DEFAULT_SHADOW, zIndex: 2 }
       ],
       text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'left' }
+    }
+  },
+  {
+    name: '3D Perspective',
+    description: 'Dramatic 3D angle view',
+    config: {
+      devices: [
+        { id: 't5_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: 0, y: 50, rotation: 0, rotateX: 10, rotateY: -20, scale: 0.95, shadow: DEFAULT_SHADOW, zIndex: 1 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'center' }
+    }
+  },
+  {
+    name: '3D Showcase',
+    description: 'Two devices in 3D space',
+    config: {
+      devices: [
+        { id: 't6_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: -200, y: 50, rotation: 0, rotateX: 5, rotateY: 25, scale: 0.8, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't6_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 200, y: 50, rotation: 0, rotateX: 5, rotateY: -25, scale: 0.8, shadow: DEFAULT_SHADOW, zIndex: 2 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top' }
     }
   }
 ];

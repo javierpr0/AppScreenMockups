@@ -41,6 +41,8 @@ export interface DeviceConfig {
   x: number;
   y: number;
   rotation: number;
+  rotateX: number;
+  rotateY: number;
   scale: number;
   shadow: ShadowConfig;
   zIndex: number;

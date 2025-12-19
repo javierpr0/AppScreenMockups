@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScreenConfig, DeviceType, DeviceConfig } from '../types';
 import { TEMPLATES } from '../constants';
-import { Download, Upload, MonitorSmartphone, Type, Palette, Layout, Move, RotateCw, Plus, Trash2, Layers, Grid } from 'lucide-react';
+import { Download, Upload, MonitorSmartphone, Type, Palette, Layout, Move, RotateCw, Plus, Trash2, Layers, Grid, Box } from 'lucide-react';
 
 interface SidebarProps {
   config: ScreenConfig;
@@ -45,6 +45,8 @@ const Sidebar: React.FC<SidebarProps> = ({ config, onChange, onExport }) => {
         x: 0,
         y: 0,
         rotation: 0,
+        rotateX: 0,
+        rotateY: 0,
         scale: 0.8,
         shadow: { enabled: true, color: '#000000', blur: 40, opacity: 0.4, offsetY: 20 },
         zIndex: config.devices.length + 1
@@ -188,17 +190,17 @@ const Sidebar: React.FC<SidebarProps> = ({ config, onChange, onExport }) => {
                     <div className="animate-in fade-in slide-in-from-right-4 duration-300 space-y-6">
                         <div className="space-y-3">
                             <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Device Image</label>
-                            <div className="border-2 border-dashed border-slate-700 rounded-xl p-6 text-center hover:border-indigo-500 hover:bg-slate-800/50 transition-colors group relative overflow-hidden">
-                                <input 
-                                    type="file" 
-                                    accept="image/*" 
+                            <div className="border-2 border-dashed border-slate-700 rounded-xl p-6 text-center hover:border-indigo-500 hover:bg-slate-800/50 transition-colors group relative overflow-hidden min-h-[120px]">
+                                <input
+                                    type="file"
+                                    accept="image/*"
                                     onChange={handleImageUpload}
-                                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-20"
+                                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-30"
                                 />
                                 {currentDevice.image ? (
                                     <div className="absolute inset-0 w-full h-full bg-slate-900 z-10">
                                          <img src={currentDevice.image} className="w-full h-full object-contain opacity-50" alt="preview" />
-                                         <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                         <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-20">
                                             <span className="text-xs text-white">Click to replace</span>
                                          </div>
                                     </div>
@@ -224,7 +226,7 @@ const Sidebar: React.FC<SidebarProps> = ({ config, onChange, onExport }) => {
                                             : 'border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-600'
                                         }`}
                                     >
-                                        {type.split(' ')[0]}
+                                        {type}
                                     </button>
                                 ))}
                             </div>
@@ -322,14 +324,61 @@ const Sidebar: React.FC<SidebarProps> = ({ config, onChange, onExport }) => {
                                 </label>
                                 <span className="text-xs text-slate-400">{currentDevice.rotation}°</span>
                             </div>
-                            <input 
-                                type="range" 
-                                min="-45" 
-                                max="45" 
+                            <input
+                                type="range"
+                                min="-45"
+                                max="45"
                                 value={currentDevice.rotation}
                                 onChange={(e) => updateCurrentDevice({ rotation: parseInt(e.target.value) })}
                                 className="w-full accent-indigo-500 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
                             />
+                        </div>
+
+                        <hr className="border-slate-800" />
+
+                        {/* 3D Transform */}
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <label className="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                                    <Box size={14} /> 3D Transform
+                                </label>
+                                <button
+                                    onClick={() => updateCurrentDevice({ rotateX: 0, rotateY: 0 })}
+                                    className="text-xs text-indigo-400 hover:text-indigo-300"
+                                >
+                                    Reset
+                                </button>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="flex justify-between text-xs text-slate-500">
+                                    <span>Tilt X (Vertical)</span>
+                                    <span>{currentDevice.rotateX || 0}°</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="-45"
+                                    max="45"
+                                    value={currentDevice.rotateX || 0}
+                                    onChange={(e) => updateCurrentDevice({ rotateX: parseInt(e.target.value) })}
+                                    className="w-full accent-indigo-500 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+                                />
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="flex justify-between text-xs text-slate-500">
+                                    <span>Tilt Y (Horizontal)</span>
+                                    <span>{currentDevice.rotateY || 0}°</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="-45"
+                                    max="45"
+                                    value={currentDevice.rotateY || 0}
+                                    onChange={(e) => updateCurrentDevice({ rotateY: parseInt(e.target.value) })}
+                                    className="w-full accent-indigo-500 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+                                />
+                            </div>
                         </div>
 
                         <hr className="border-slate-800" />
