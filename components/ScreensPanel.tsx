@@ -68,13 +68,13 @@ const ScreenThumbnail: React.FC<ScreenThumbnailProps> = ({
       )}
       onClick={onSelect}
     >
-      {/* Thumbnail */}
+      {/* Thumbnail with name overlay */}
       <div
         className={cn(
-          "relative w-10 h-[72px] rounded overflow-hidden border transition-all",
+          "relative w-14 h-8 rounded overflow-hidden border transition-all",
           "bg-zinc-800 flex items-center justify-center",
           isActive
-            ? "border-indigo-500 ring-1 ring-indigo-500/30"
+            ? "border-indigo-500 ring-1 ring-indigo-500/30 bg-indigo-500/10"
             : "border-zinc-700 hover:border-zinc-500"
         )}
       >
@@ -82,13 +82,35 @@ const ScreenThumbnail: React.FC<ScreenThumbnailProps> = ({
           <img
             src={screen.thumbnail}
             alt={screen.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-60"
           />
-        ) : (
-          <div className="text-zinc-600 text-[8px] text-center p-0.5">
-            No preview
-          </div>
-        )}
+        ) : null}
+
+        {/* Name overlay */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {isEditing ? (
+            <Input
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onBlur={handleBlur}
+              onKeyDown={handleKeyDown}
+              onClick={(e) => e.stopPropagation()}
+              className="h-5 w-12 text-[9px] text-center px-0.5 py-0 bg-zinc-900/80"
+              autoFocus
+            />
+          ) : (
+            <span
+              onDoubleClick={handleDoubleClick}
+              className={cn(
+                "text-[9px] font-medium truncate px-1",
+                isActive ? "text-white" : "text-zinc-400"
+              )}
+              title={screen.name}
+            >
+              {screen.name.length > 8 ? screen.name.slice(0, 7) + '…' : screen.name}
+            </span>
+          )}
+        </div>
 
         {/* Delete button */}
         {canDelete && (
@@ -98,9 +120,9 @@ const ScreenThumbnail: React.FC<ScreenThumbnailProps> = ({
               onDelete();
             }}
             className={cn(
-              "absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full",
-              "bg-red-500 hover:bg-red-600 text-white text-[10px]",
-              "flex items-center justify-center",
+              "absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full",
+              "bg-red-500 hover:bg-red-600 text-white text-[9px]",
+              "flex items-center justify-center leading-none",
               "opacity-0 group-hover:opacity-100 transition-opacity",
               "shadow"
             )}
@@ -109,30 +131,6 @@ const ScreenThumbnail: React.FC<ScreenThumbnailProps> = ({
           </button>
         )}
       </div>
-
-      {/* Screen name */}
-      {isEditing ? (
-        <Input
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-          onClick={(e) => e.stopPropagation()}
-          className="h-4 w-12 text-[8px] text-center px-0.5 py-0"
-          autoFocus
-        />
-      ) : (
-        <span
-          onDoubleClick={handleDoubleClick}
-          className={cn(
-            "text-[8px] truncate max-w-12 text-center leading-tight",
-            isActive ? "text-zinc-300" : "text-zinc-500"
-          )}
-          title="Double-click to rename"
-        >
-          {screen.name}
-        </span>
-      )}
     </div>
   );
 };
@@ -167,8 +165,8 @@ export const ScreensPanel: React.FC<ScreensPanelProps> = ({
   };
 
   return (
-    <div className="w-full bg-zinc-900 border-b border-zinc-800 px-3 py-1.5 shrink-0">
-      <div className="flex items-center gap-3 h-12">
+    <div className="w-full bg-zinc-900/95 backdrop-blur border-b border-zinc-800 px-2 py-1 shrink-0">
+      <div className="flex items-center gap-2 h-10">
         {/* Add Screen Button */}
         <TooltipProvider>
           <Tooltip>

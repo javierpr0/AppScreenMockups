@@ -54,24 +54,92 @@ export const DeviceTab: React.FC<DeviceTabProps> = ({ device, onUpdate }) => {
         </div>
       </div>
 
-      {/* Device Model */}
-      <div className="space-y-2">
+      {/* Device Model - Organized by Brand */}
+      <div className="space-y-3">
         <Label>Device Model</Label>
-        <div className="grid grid-cols-2 gap-2">
-          {Object.values(DeviceType).map((type) => (
-            <button
-              key={type}
-              onClick={() => onUpdate({ type })}
-              className={cn(
-                "px-2 py-1.5 rounded-md border text-xs text-left transition-all",
-                device.type === type
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border bg-card text-muted-foreground hover:bg-accent"
-              )}
-            >
-              {type}
-            </button>
-          ))}
+
+        {/* Apple */}
+        <div className="space-y-1.5">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Apple</span>
+          <div className="grid grid-cols-2 gap-1.5">
+            {[
+              DeviceType.IPHONE_16_PRO,
+              DeviceType.IPHONE_16_PRO_MAX,
+              DeviceType.IPHONE_15_PRO,
+              DeviceType.IPHONE_15_PRO_MAX,
+              DeviceType.IPHONE_14_PRO,
+              DeviceType.IPHONE_SE,
+              DeviceType.IPAD_PRO_13,
+              DeviceType.IPAD_PRO_11,
+            ].map((type) => (
+              <button
+                key={type}
+                onClick={() => onUpdate({ type })}
+                className={cn(
+                  "px-2 py-1.5 rounded border text-[10px] text-left transition-all truncate",
+                  device.type === type
+                    ? "border-primary bg-primary/10 text-primary font-medium"
+                    : "border-border bg-card text-muted-foreground hover:bg-accent"
+                )}
+                title={type}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Samsung */}
+        <div className="space-y-1.5">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Samsung</span>
+          <div className="grid grid-cols-2 gap-1.5">
+            {[
+              DeviceType.SAMSUNG_S24_ULTRA,
+              DeviceType.SAMSUNG_S24,
+              DeviceType.SAMSUNG_FOLD,
+              DeviceType.SAMSUNG_S23,
+            ].map((type) => (
+              <button
+                key={type}
+                onClick={() => onUpdate({ type })}
+                className={cn(
+                  "px-2 py-1.5 rounded border text-[10px] text-left transition-all truncate",
+                  device.type === type
+                    ? "border-primary bg-primary/10 text-primary font-medium"
+                    : "border-border bg-card text-muted-foreground hover:bg-accent"
+                )}
+                title={type}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Google */}
+        <div className="space-y-1.5">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Google</span>
+          <div className="grid grid-cols-2 gap-1.5">
+            {[
+              DeviceType.PIXEL_9_PRO,
+              DeviceType.PIXEL_9,
+              DeviceType.PIXEL_8_PRO,
+            ].map((type) => (
+              <button
+                key={type}
+                onClick={() => onUpdate({ type })}
+                className={cn(
+                  "px-2 py-1.5 rounded border text-[10px] text-left transition-all truncate",
+                  device.type === type
+                    ? "border-primary bg-primary/10 text-primary font-medium"
+                    : "border-border bg-card text-muted-foreground hover:bg-accent"
+                )}
+                title={type}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

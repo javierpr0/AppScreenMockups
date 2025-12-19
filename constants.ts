@@ -202,10 +202,28 @@ export const DEFAULT_SCREEN_CONFIG: ScreenConfig = {
 };
 
 export const DEVICE_ASPECT_RATIOS: Record<DeviceType, number> = {
+  // Apple Modern
+  [DeviceType.IPHONE_16_PRO]: 9 / 19.5,
+  [DeviceType.IPHONE_16_PRO_MAX]: 9 / 19.5,
   [DeviceType.IPHONE_15_PRO]: 9 / 19.5,
-  [DeviceType.IPHONE_14_PLUS]: 9 / 19.5,
-  [DeviceType.IPHONE_SE]: 9 / 16, // Screen is 16:9, keeping frame simple
+  [DeviceType.IPHONE_15_PRO_MAX]: 9 / 19.5,
+  [DeviceType.IPHONE_14_PRO]: 9 / 19.5,
+  [DeviceType.IPHONE_SE]: 9 / 16,
+  [DeviceType.IPAD_PRO_13]: 3 / 4,
+  [DeviceType.IPAD_PRO_11]: 3 / 4,
+
+  // Samsung
+  [DeviceType.SAMSUNG_S24_ULTRA]: 9 / 19.5,
   [DeviceType.SAMSUNG_S24]: 9 / 19.5,
+  [DeviceType.SAMSUNG_FOLD]: 9 / 22,
+
+  // Google Pixel
+  [DeviceType.PIXEL_9_PRO]: 9 / 20,
+  [DeviceType.PIXEL_9]: 9 / 20,
+  [DeviceType.PIXEL_8_PRO]: 9 / 20,
+
+  // Legacy
+  [DeviceType.IPHONE_14_PLUS]: 9 / 19.5,
   [DeviceType.SAMSUNG_S23]: 9 / 19.5,
   [DeviceType.ANDROID_PIXEL]: 9 / 20,
   [DeviceType.PIXEL_7]: 9 / 20,
@@ -217,69 +235,219 @@ export const CANVAS_WIDTH = 1242;
 export const CANVAS_HEIGHT = 2208;
 
 export const TEMPLATES: Template[] = [
+  // === HERO DEVICE PATTERNS ===
   {
-    name: 'Single Hero',
-    description: 'One centered device',
+    name: 'Hero Centered',
+    description: 'Single centered device, classic layout',
     config: {
       devices: [
-        { id: 't1_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: 0, y: 0, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.9, shadow: DEFAULT_SHADOW, zIndex: 1 }
+        { id: 't1_d1', type: DeviceType.IPHONE_16_PRO, image: null, x: 0, y: 100, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.95, shadow: DEFAULT_SHADOW, zIndex: 1 }
       ],
       text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'center' }
     }
   },
   {
-    name: 'Dual Angled',
-    description: 'Two phones tilting inwards',
+    name: 'Hero Large',
+    description: 'Device dominant, minimal text',
     config: {
       devices: [
-        { id: 't2_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: -250, y: 100, rotation: -15, rotateX: 0, rotateY: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 1 },
-        { id: 't2_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 250, y: 100, rotation: 15, rotateX: 0, rotateY: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 2 }
+        { id: 't1b_d1', type: DeviceType.IPHONE_16_PRO_MAX, image: null, x: 0, y: 180, rotation: 0, rotateX: 0, rotateY: 0, scale: 1.05, shadow: DEFAULT_SHADOW, zIndex: 1 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'center', titleSize: 72, subtitleSize: 40 }
+    }
+  },
+  {
+    name: 'Hero Floating',
+    description: 'Device with elegant float',
+    config: {
+      devices: [
+        { id: 't1c_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: 0, y: 50, rotation: 2, rotateX: 0, rotateY: 0, scale: 0.9, shadow: { ...DEFAULT_SHADOW, blur: 60, offsetY: 40 }, zIndex: 1 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'center' }
+    }
+  },
+
+  // === DUAL DEVICE PATTERNS ===
+  {
+    name: 'Dual Angled 35°',
+    description: 'Classic dual angled phones',
+    config: {
+      devices: [
+        { id: 't2_d1', type: DeviceType.IPHONE_16_PRO, image: null, x: -280, y: 150, rotation: -35, rotateX: 0, rotateY: 0, scale: 0.75, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't2_d2', type: DeviceType.IPHONE_16_PRO, image: null, x: 280, y: 150, rotation: 35, rotateX: 0, rotateY: 0, scale: 0.75, shadow: DEFAULT_SHADOW, zIndex: 2 }
       ],
       text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top' }
     }
   },
   {
-    name: 'Three Phones',
-    description: 'A presentation trio',
+    name: 'Dual Offset Depth',
+    description: 'Layered depth effect',
     config: {
       devices: [
-        { id: 't3_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: -400, y: 150, rotation: -10, rotateX: 0, rotateY: 0, scale: 0.75, shadow: DEFAULT_SHADOW, zIndex: 1 },
-        { id: 't3_d3', type: DeviceType.IPHONE_15_PRO, image: null, x: 400, y: 150, rotation: 10, rotateX: 0, rotateY: 0, scale: 0.75, shadow: DEFAULT_SHADOW, zIndex: 1 },
-        { id: 't3_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 0, y: 50, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 2 }
+        { id: 't2b_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: -150, y: 200, rotation: -20, rotateX: 0, rotateY: 0, scale: 0.7, shadow: { ...DEFAULT_SHADOW, opacity: 0.3 }, zIndex: 1 },
+        { id: 't2b_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 150, y: 80, rotation: 15, rotateX: 0, rotateY: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 2 }
       ],
       text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top' }
     }
   },
   {
-    name: 'Tablet & Phone',
+    name: 'Dual Symmetrical',
+    description: 'Mirror symmetry layout',
+    config: {
+      devices: [
+        { id: 't2c_d1', type: DeviceType.SAMSUNG_S24_ULTRA, image: null, x: -220, y: 120, rotation: -12, rotateX: 0, rotateY: 0, scale: 0.8, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't2c_d2', type: DeviceType.SAMSUNG_S24_ULTRA, image: null, x: 220, y: 120, rotation: 12, rotateX: 0, rotateY: 0, scale: 0.8, shadow: DEFAULT_SHADOW, zIndex: 2 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top' }
+    }
+  },
+
+  // === TRIPLE DEVICE PATTERNS ===
+  {
+    name: 'Triple Carousel',
+    description: 'Three devices in a row',
+    config: {
+      devices: [
+        { id: 't3_d1', type: DeviceType.IPHONE_16_PRO, image: null, x: -380, y: 180, rotation: -18, rotateX: 0, rotateY: 0, scale: 0.7, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't3_d2', type: DeviceType.IPHONE_16_PRO, image: null, x: 0, y: 100, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 3 },
+        { id: 't3_d3', type: DeviceType.IPHONE_16_PRO, image: null, x: 380, y: 180, rotation: 18, rotateX: 0, rotateY: 0, scale: 0.7, shadow: DEFAULT_SHADOW, zIndex: 2 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top' }
+    }
+  },
+  {
+    name: 'Triple Nested',
+    description: 'Layered stack effect',
+    config: {
+      devices: [
+        { id: 't3b_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: -80, y: 180, rotation: -30, rotateX: 0, rotateY: 0, scale: 0.65, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't3b_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 0, y: 120, rotation: -12, rotateX: 0, rotateY: 0, scale: 0.75, shadow: DEFAULT_SHADOW, zIndex: 2 },
+        { id: 't3b_d3', type: DeviceType.IPHONE_15_PRO, image: null, x: 80, y: 60, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 3 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top' }
+    }
+  },
+  {
+    name: 'Triple Diagonal',
+    description: 'Cascading diagonal layout',
+    config: {
+      devices: [
+        { id: 't3c_d1', type: DeviceType.PIXEL_9_PRO, image: null, x: -350, y: 0, rotation: -25, rotateX: 0, rotateY: 0, scale: 0.75, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't3c_d2', type: DeviceType.PIXEL_9_PRO, image: null, x: 0, y: 150, rotation: -8, rotateX: 0, rotateY: 0, scale: 0.8, shadow: DEFAULT_SHADOW, zIndex: 2 },
+        { id: 't3c_d3', type: DeviceType.PIXEL_9_PRO, image: null, x: 350, y: 300, rotation: 10, rotateX: 0, rotateY: 0, scale: 0.7, shadow: DEFAULT_SHADOW, zIndex: 3 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'left' }
+    }
+  },
+
+  // === 3D PERSPECTIVE PATTERNS ===
+  {
+    name: '3D Isometric',
+    description: 'Dramatic 3D angle',
+    config: {
+      devices: [
+        { id: 't4_d1', type: DeviceType.IPHONE_16_PRO, image: null, x: 0, y: 80, rotation: 0, rotateX: 12, rotateY: -25, scale: 0.9, shadow: DEFAULT_SHADOW, zIndex: 1 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'center' }
+    }
+  },
+  {
+    name: '3D Showcase Dual',
+    description: 'Two devices in 3D space',
+    config: {
+      devices: [
+        { id: 't4b_d1', type: DeviceType.IPHONE_16_PRO, image: null, x: -220, y: 80, rotation: 0, rotateX: 8, rotateY: 30, scale: 0.8, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't4b_d2', type: DeviceType.IPHONE_16_PRO, image: null, x: 220, y: 80, rotation: 0, rotateX: 8, rotateY: -30, scale: 0.8, shadow: DEFAULT_SHADOW, zIndex: 2 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top' }
+    }
+  },
+  {
+    name: '3D Floating',
+    description: 'Single device with tilt',
+    config: {
+      devices: [
+        { id: 't4c_d1', type: DeviceType.SAMSUNG_S24_ULTRA, image: null, x: 50, y: 100, rotation: -5, rotateX: 15, rotateY: -20, scale: 0.88, shadow: { ...DEFAULT_SHADOW, blur: 50 }, zIndex: 1 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'left' }
+    }
+  },
+
+  // === MULTI-DEVICE & TABLET PATTERNS ===
+  {
+    name: 'iPad & iPhone',
     description: 'Show responsive design',
     config: {
       devices: [
-        { id: 't4_d1', type: DeviceType.TABLET, image: null, x: -100, y: 100, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.9, shadow: DEFAULT_SHADOW, zIndex: 1 },
-        { id: 't4_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 350, y: 400, rotation: -5, rotateX: 0, rotateY: 0, scale: 0.6, shadow: DEFAULT_SHADOW, zIndex: 2 }
+        { id: 't5_d1', type: DeviceType.IPAD_PRO_13, image: null, x: -120, y: 80, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't5_d2', type: DeviceType.IPHONE_16_PRO, image: null, x: 380, y: 350, rotation: -8, rotateX: 0, rotateY: 0, scale: 0.6, shadow: DEFAULT_SHADOW, zIndex: 2 }
       ],
       text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'left' }
     }
   },
   {
-    name: '3D Perspective',
-    description: 'Dramatic 3D angle view',
+    name: 'Phone + Tablet Stack',
+    description: 'Layered multi-device',
     config: {
       devices: [
-        { id: 't5_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: 0, y: 50, rotation: 0, rotateX: 10, rotateY: -20, scale: 0.95, shadow: DEFAULT_SHADOW, zIndex: 1 }
+        { id: 't5b_d1', type: DeviceType.IPAD_PRO_11, image: null, x: 100, y: 180, rotation: 5, rotateX: 0, rotateY: 0, scale: 0.75, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't5b_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: -200, y: 100, rotation: -15, rotateX: 0, rotateY: 0, scale: 0.7, shadow: DEFAULT_SHADOW, zIndex: 2 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'center' }
+    }
+  },
+
+  // === SPECIAL PATTERNS ===
+  {
+    name: 'Samsung Ultra',
+    description: 'S24 Ultra showcase',
+    config: {
+      devices: [
+        { id: 't6_d1', type: DeviceType.SAMSUNG_S24_ULTRA, image: null, x: 0, y: 100, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.92, shadow: DEFAULT_SHADOW, zIndex: 1 }
       ],
       text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'center' }
     }
   },
   {
-    name: '3D Showcase',
-    description: 'Two devices in 3D space',
+    name: 'Pixel Showcase',
+    description: 'Google Pixel 9 Pro',
     config: {
       devices: [
-        { id: 't6_d1', type: DeviceType.IPHONE_15_PRO, image: null, x: -200, y: 50, rotation: 0, rotateX: 5, rotateY: 25, scale: 0.8, shadow: DEFAULT_SHADOW, zIndex: 1 },
-        { id: 't6_d2', type: DeviceType.IPHONE_15_PRO, image: null, x: 200, y: 50, rotation: 0, rotateX: 5, rotateY: -25, scale: 0.8, shadow: DEFAULT_SHADOW, zIndex: 2 }
+        { id: 't6b_d1', type: DeviceType.PIXEL_9_PRO, image: null, x: 0, y: 100, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.9, shadow: DEFAULT_SHADOW, zIndex: 1 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'center' }
+    }
+  },
+  {
+    name: 'Mixed Ecosystem',
+    description: 'iPhone + Samsung + Pixel',
+    config: {
+      devices: [
+        { id: 't7_d1', type: DeviceType.IPHONE_16_PRO, image: null, x: -350, y: 150, rotation: -20, rotateX: 0, rotateY: 0, scale: 0.68, shadow: DEFAULT_SHADOW, zIndex: 1 },
+        { id: 't7_d2', type: DeviceType.SAMSUNG_S24_ULTRA, image: null, x: 0, y: 80, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.78, shadow: DEFAULT_SHADOW, zIndex: 2 },
+        { id: 't7_d3', type: DeviceType.PIXEL_9_PRO, image: null, x: 350, y: 150, rotation: 20, rotateX: 0, rotateY: 0, scale: 0.68, shadow: DEFAULT_SHADOW, zIndex: 1 }
       ],
       text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top' }
+    }
+  },
+  {
+    name: 'Foldable Feature',
+    description: 'Galaxy Fold showcase',
+    config: {
+      devices: [
+        { id: 't8_d1', type: DeviceType.SAMSUNG_FOLD, image: null, x: 0, y: 50, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.85, shadow: DEFAULT_SHADOW, zIndex: 1 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'top', alignment: 'center' }
+    }
+  },
+  {
+    name: 'Bottom Text Hero',
+    description: 'Device top, text bottom',
+    config: {
+      devices: [
+        { id: 't9_d1', type: DeviceType.IPHONE_16_PRO, image: null, x: 0, y: -100, rotation: 0, rotateX: 0, rotateY: 0, scale: 0.88, shadow: DEFAULT_SHADOW, zIndex: 1 }
+      ],
+      text: { ...DEFAULT_SCREEN_CONFIG.text, position: 'bottom', alignment: 'center' }
     }
   }
 ];

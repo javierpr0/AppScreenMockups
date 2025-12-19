@@ -1,12 +1,7 @@
 import JSZip from 'jszip';
+import html2canvas from 'html2canvas';
 import { ExportSize } from '../types';
 import { EXPORT_SIZES, CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants';
-
-declare global {
-  interface Window {
-    html2canvas: (element: HTMLElement, options?: any) => Promise<HTMLCanvasElement>;
-  }
-}
 
 export interface ExportResult {
   blob: Blob;
@@ -34,7 +29,7 @@ export class ExportService {
     const scale = Math.max(scaleX, scaleY);
 
     // Capture with html2canvas
-    const canvas = await window.html2canvas(sourceElement, {
+    const canvas = await html2canvas(sourceElement, {
       scale: scale,
       useCORS: true,
       backgroundColor: null,
@@ -149,7 +144,7 @@ export class ExportService {
    * Exports a single PNG (current behavior)
    */
   static async exportSinglePng(sourceElement: HTMLElement): Promise<void> {
-    const canvas = await window.html2canvas(sourceElement, {
+    const canvas = await html2canvas(sourceElement, {
       scale: 1,
       useCORS: true,
       backgroundColor: null,

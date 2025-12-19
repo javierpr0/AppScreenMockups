@@ -1,8 +1,26 @@
 export enum DeviceType {
+  // Apple - Modern
+  IPHONE_16_PRO = 'iPhone 16 Pro',
+  IPHONE_16_PRO_MAX = 'iPhone 16 Pro Max',
   IPHONE_15_PRO = 'iPhone 15 Pro',
-  IPHONE_14_PLUS = 'iPhone 14 Plus',
+  IPHONE_15_PRO_MAX = 'iPhone 15 Pro Max',
+  IPHONE_14_PRO = 'iPhone 14 Pro',
   IPHONE_SE = 'iPhone SE',
-  SAMSUNG_S24 = 'Samsung S24 Ultra',
+  IPAD_PRO_13 = 'iPad Pro 13"',
+  IPAD_PRO_11 = 'iPad Pro 11"',
+
+  // Samsung - Flagship
+  SAMSUNG_S24_ULTRA = 'Samsung S24 Ultra',
+  SAMSUNG_S24 = 'Samsung S24',
+  SAMSUNG_FOLD = 'Galaxy Z Fold',
+
+  // Google Pixel
+  PIXEL_9_PRO = 'Pixel 9 Pro',
+  PIXEL_9 = 'Pixel 9',
+  PIXEL_8_PRO = 'Pixel 8 Pro',
+
+  // Legacy (for backwards compatibility)
+  IPHONE_14_PLUS = 'iPhone 14 Plus',
   SAMSUNG_S23 = 'Samsung S23',
   ANDROID_PIXEL = 'Pixel 8 Pro',
   PIXEL_7 = 'Pixel 7',

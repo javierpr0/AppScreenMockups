@@ -9,266 +9,468 @@ interface DeviceFrameProps {
 }
 
 const DeviceFrame: React.FC<DeviceFrameProps> = ({ type, imageSrc, className = '', style = {} }) => {
-  
+
   const renderContent = (radiusStyle: React.CSSProperties) => {
     if (imageSrc) {
       return (
-        <img 
-          src={imageSrc} 
-          alt="Screen" 
+        <img
+          src={imageSrc}
+          alt="Screen"
           className="w-full h-full object-cover"
           style={radiusStyle}
         />
       );
     }
     return (
-      <div 
-        className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500"
+      <div
+        className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center"
         style={radiusStyle}
       >
-        <span className="text-xl font-medium">Upload Image</span>
+        <div className="flex flex-col items-center gap-2 text-slate-500">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span className="text-sm font-medium">Drop Image</span>
+        </div>
       </div>
     );
   };
 
-  // Glass/Gloss overlay for realism on the screen
+  // Enhanced Glass/Gloss overlay for realism
   const GlossOverlay = ({ borderRadius }: { borderRadius: string }) => (
-    <div className="absolute inset-0 pointer-events-none z-40 opacity-40 mix-blend-soft-light"
-         style={{
-           borderRadius: borderRadius,
-           background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.1) 100%)'
-         }}
-    ></div>
+    <>
+      {/* Highlight superior */}
+      <div className="absolute inset-0 pointer-events-none z-40"
+           style={{
+             borderRadius,
+             background: 'linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 25%)',
+             opacity: 0.3,
+             mixBlendMode: 'screen'
+           }}
+      />
+      {/* Sombra inferior sutil */}
+      <div className="absolute inset-0 pointer-events-none z-40"
+           style={{
+             borderRadius,
+             background: 'linear-gradient(to bottom, transparent 70%, rgba(0,0,0,0.1) 100%)',
+             opacity: 0.5,
+             mixBlendMode: 'multiply'
+           }}
+      />
+    </>
   );
 
-  /* --- iPHONE 15 PRO (SVG High Fidelity) --- */
-  if (type === DeviceType.IPHONE_15_PRO) {
-    // Aspect Ratio ~ 19.5:9
+  /* =============================================
+     iPHONE 16 PRO / iPHONE 16 PRO MAX
+     Dynamic Island, Ultra-thin bezels, Titanium
+  ============================================= */
+  if (type === DeviceType.IPHONE_16_PRO || type === DeviceType.IPHONE_16_PRO_MAX) {
     return (
       <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '9/19.5', ...style }}>
-         {/* Screen Content Container */}
-         {/* Inset by approx 3% for bezel, z-20 to appear below notch */}
-         <div className="absolute inset-[3%] rounded-[48px] bg-black overflow-hidden z-20">
-             {renderContent({ borderRadius: '0px' })}
-         </div>
+        {/* Screen Content */}
+        <div className="absolute inset-[2.5%] rounded-[52px] bg-black overflow-hidden z-20">
+          {renderContent({ borderRadius: '0px' })}
+        </div>
 
-         {/* SVG Frame Overlay - pointer-events-none allows clicks through */}
-         <svg
-            viewBox="0 0 430 932"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="absolute inset-0 w-full h-full z-10 pointer-events-none"
-            style={{ overflow: 'visible' }}
-         >
-            <defs>
-                <linearGradient id="titanium_frame" x1="0" y1="0" x2="430" y2="932" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#5E5E5E"/>
-                    <stop offset="0.1" stopColor="#3A3A3A"/>
-                    <stop offset="0.3" stopColor="#222222"/>
-                    <stop offset="0.7" stopColor="#222222"/>
-                    <stop offset="0.9" stopColor="#3A3A3A"/>
-                    <stop offset="1" stopColor="#5E5E5E"/>
-                </linearGradient>
-                <linearGradient id="bezel_shine" x1="215" y1="20" x2="215" y2="912" gradientUnits="userSpaceOnUse">
-                     <stop stopColor="#000000" />
-                     <stop offset="1" stopColor="#111111" />
-                </linearGradient>
-                <filter id="frame_shadow" x="-50" y="-50" width="530" height="1032" filterUnits="userSpaceOnUse">
-                    <feDropShadow dx="0" dy="0" stdDeviation="15" floodColor="#000" floodOpacity="0.5"/>
-                </filter>
-            </defs>
+        {/* SVG Frame */}
+        <svg viewBox="0 0 430 932" fill="none" xmlns="http://www.w3.org/2000/svg"
+             className="absolute inset-0 w-full h-full z-10 pointer-events-none" style={{ overflow: 'visible' }}>
+          <defs>
+            <linearGradient id="titanium_16" x1="0" y1="0" x2="430" y2="932" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#6a6a6a"/>
+              <stop offset="0.15" stopColor="#4a4a4a"/>
+              <stop offset="0.3" stopColor="#2a2a2a"/>
+              <stop offset="0.5" stopColor="#1a1a1a"/>
+              <stop offset="0.7" stopColor="#2a2a2a"/>
+              <stop offset="0.85" stopColor="#4a4a4a"/>
+              <stop offset="1" stopColor="#6a6a6a"/>
+            </linearGradient>
+            <filter id="frame_shadow_16" x="-20" y="-20" width="470" height="972">
+              <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#000" floodOpacity="0.4"/>
+            </filter>
+            <linearGradient id="button_shine" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stopColor="#555"/>
+              <stop offset="0.5" stopColor="#333"/>
+              <stop offset="1" stopColor="#555"/>
+            </linearGradient>
+          </defs>
 
-            {/* Outer Frame (Titanium) */}
-            <path d="M60 0H370C403.137 0 430 26.8629 430 60V872C430 905.137 403.137 932 370 932H60C26.8629 932 0 905.137 0 872V60C0 26.8629 26.8629 0 60 0Z" fill="url(#titanium_frame)"/>
+          {/* Outer Frame */}
+          <rect x="0" y="0" width="430" height="932" rx="58" fill="url(#titanium_16)" filter="url(#frame_shadow_16)"/>
 
-            {/* Inner Bezel stroke for depth */}
-            <path d="M60 4H370C400.928 4 426 29.0721 426 60V872C426 902.928 400.928 928 370 928H60C29.0721 928 4 902.928 4 872V60C4 29.0721 29.0721 4 60 4Z" stroke="#1a1a1a" strokeWidth="4"/>
+          {/* Inner bezel */}
+          <rect x="4" y="4" width="422" height="924" rx="54" stroke="#1a1a1a" strokeWidth="4" fill="none"/>
+          <rect x="10" y="10" width="410" height="912" rx="50" stroke="#111" strokeWidth="1" fill="none"/>
 
-            {/* Main Bezel - stroke only, no fill to show screen content */}
-            <path d="M60 12H370C396.51 12 418 33.4903 418 60V872C418 898.51 396.51 920 370 920H60C33.4903 920 12 898.51 12 872V60C12 33.4903 33.4903 12 60 12Z" fill="none" stroke="#111" strokeWidth="2"/>
+          {/* Side Buttons - Left */}
+          <rect x="-4" y="180" width="4" height="35" rx="2" fill="url(#button_shine)"/>
+          <rect x="-4" y="240" width="4" height="70" rx="2" fill="url(#button_shine)"/>
+          <rect x="-4" y="330" width="4" height="70" rx="2" fill="url(#button_shine)"/>
 
-            {/* Buttons Left */}
-            <path d="M-3 120H0V155H-3C-4.1 155 -5 154.1 -5 153V122C-5 120.9 -4.1 120 -3 120Z" fill="#444"/>
-            <path d="M-3 190H0V260H-3C-4.1 260 -5 259.1 -5 258V192C-5 190.9 -4.1 190 -3 190Z" fill="#444"/>
-            <path d="M-3 280H0V350H-3C-4.1 350 -5 349.1 -5 348V282C-5 280.9 -4.1 280 -3 280Z" fill="#444"/>
+          {/* Power Button - Right */}
+          <rect x="430" y="280" width="4" height="90" rx="2" fill="url(#button_shine)"/>
 
-            {/* Button Right */}
-            <path d="M433 220H430V310H433C434.1 310 435 309.1 435 308V222C435 220.9 434.1 220 433 220Z" fill="#444"/>
+          {/* Camera Control Button - Right (new on 16) */}
+          <rect x="430" y="450" width="4" height="45" rx="2" fill="#3a3a3a"/>
+        </svg>
 
-            {/* Antenna Bands */}
-            <rect x="428" y="100" width="2" height="6" fill="#666" opacity="0.5"/>
-            <rect x="0" y="100" width="2" height="6" fill="#666" opacity="0.5"/>
-            <rect x="428" y="800" width="2" height="6" fill="#666" opacity="0.5"/>
-            <rect x="0" y="800" width="2" height="6" fill="#666" opacity="0.5"/>
-         </svg>
+        {/* Dynamic Island */}
+        <svg viewBox="0 0 430 932" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
+          <defs>
+            <filter id="di_shadow">
+              <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#000" floodOpacity="0.3"/>
+            </filter>
+          </defs>
+          <rect x="140" y="22" width="150" height="40" rx="20" fill="black" filter="url(#di_shadow)"/>
+          {/* Camera lens */}
+          <circle cx="250" cy="42" r="8" fill="#1a1a1a"/>
+          <circle cx="250" cy="42" r="5" fill="#0a0a0a"/>
+          <circle cx="248" cy="40" r="1.5" fill="#333" opacity="0.6"/>
+        </svg>
 
-         {/* Dynamic Island Overlay - z-30 to appear above screen content */}
-         <svg
-            viewBox="0 0 430 932"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="absolute inset-0 w-full h-full z-30 pointer-events-none"
-         >
-            {/* Dynamic Island */}
-            <rect x="126" y="26" width="178" height="48" rx="24" fill="black"/>
-            <circle cx="340" cy="50" r="10" fill="#111" opacity="0.8"/>
-            <circle cx="340" cy="50" r="4" fill="#333" opacity="0.8"/>
-         </svg>
-
-         <GlossOverlay borderRadius="48px" />
+        <GlossOverlay borderRadius="52px" />
       </div>
     );
   }
 
-  /* --- iPHONE SE (Classic with Bezels) --- */
+  /* =============================================
+     iPHONE 15 PRO / iPHONE 15 PRO MAX
+  ============================================= */
+  if (type === DeviceType.IPHONE_15_PRO || type === DeviceType.IPHONE_15_PRO_MAX) {
+    return (
+      <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '9/19.5', ...style }}>
+        <div className="absolute inset-[3%] rounded-[48px] bg-black overflow-hidden z-20">
+          {renderContent({ borderRadius: '0px' })}
+        </div>
+
+        <svg viewBox="0 0 430 932" fill="none" xmlns="http://www.w3.org/2000/svg"
+             className="absolute inset-0 w-full h-full z-10 pointer-events-none" style={{ overflow: 'visible' }}>
+          <defs>
+            <linearGradient id="titanium_15" x1="0" y1="0" x2="430" y2="932" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#5E5E5E"/>
+              <stop offset="0.1" stopColor="#3A3A3A"/>
+              <stop offset="0.3" stopColor="#222222"/>
+              <stop offset="0.7" stopColor="#222222"/>
+              <stop offset="0.9" stopColor="#3A3A3A"/>
+              <stop offset="1" stopColor="#5E5E5E"/>
+            </linearGradient>
+            <filter id="frame_shadow_15" x="-20" y="-20" width="470" height="972">
+              <feDropShadow dx="0" dy="4" stdDeviation="10" floodColor="#000" floodOpacity="0.35"/>
+            </filter>
+          </defs>
+
+          <rect x="0" y="0" width="430" height="932" rx="55" fill="url(#titanium_15)" filter="url(#frame_shadow_15)"/>
+          <rect x="4" y="4" width="422" height="924" rx="51" stroke="#1a1a1a" strokeWidth="3" fill="none"/>
+          <rect x="10" y="10" width="410" height="912" rx="48" stroke="#111" strokeWidth="1" fill="none"/>
+
+          {/* Buttons */}
+          <rect x="-3" y="120" width="3" height="35" rx="1.5" fill="#444"/>
+          <rect x="-3" y="190" width="3" height="70" rx="1.5" fill="#444"/>
+          <rect x="-3" y="280" width="3" height="70" rx="1.5" fill="#444"/>
+          <rect x="430" y="220" width="3" height="90" rx="1.5" fill="#444"/>
+        </svg>
+
+        {/* Dynamic Island */}
+        <svg viewBox="0 0 430 932" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
+          <rect x="126" y="26" width="178" height="48" rx="24" fill="black"/>
+          <circle cx="260" cy="50" r="10" fill="#111"/>
+          <circle cx="260" cy="50" r="6" fill="#0a0a0a"/>
+          <circle cx="258" cy="48" r="2" fill="#333" opacity="0.5"/>
+        </svg>
+
+        <GlossOverlay borderRadius="48px" />
+      </div>
+    );
+  }
+
+  /* =============================================
+     iPHONE 14 PRO
+  ============================================= */
+  if (type === DeviceType.IPHONE_14_PRO || type === DeviceType.IPHONE_14_PLUS) {
+    return (
+      <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '9/19.5', ...style }}>
+        <div className="absolute inset-[3.5%] rounded-[42px] bg-black overflow-hidden z-20">
+          {renderContent({ borderRadius: '32px' })}
+        </div>
+
+        <svg viewBox="0 0 430 932" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
+          <defs>
+            <linearGradient id="steel_14" x1="0" y1="0" x2="430" y2="932" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#888"/>
+              <stop offset="0.3" stopColor="#555"/>
+              <stop offset="0.7" stopColor="#555"/>
+              <stop offset="1" stopColor="#888"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="430" height="932" rx="52" fill="url(#steel_14)"/>
+          <rect x="6" y="6" width="418" height="920" rx="46" stroke="#333" strokeWidth="2" fill="none"/>
+        </svg>
+
+        {/* Dynamic Island */}
+        <svg viewBox="0 0 430 932" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
+          <rect x="126" y="26" width="178" height="48" rx="24" fill="black"/>
+          <circle cx="260" cy="50" r="8" fill="#1a1a1a"/>
+        </svg>
+
+        <GlossOverlay borderRadius="42px" />
+      </div>
+    );
+  }
+
+  /* =============================================
+     SAMSUNG S24 ULTRA
+     Squared edges, titanium frame, flat display
+  ============================================= */
+  if (type === DeviceType.SAMSUNG_S24_ULTRA || type === DeviceType.SAMSUNG_S24) {
+    const isUltra = type === DeviceType.SAMSUNG_S24_ULTRA;
+    return (
+      <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '9/19.5', ...style }}>
+        <div className={`absolute inset-[1.5%] ${isUltra ? 'rounded-[6px]' : 'rounded-[12px]'} bg-black overflow-hidden z-20`}>
+          {renderContent({ borderRadius: isUltra ? '4px' : '10px' })}
+        </div>
+
+        <svg viewBox="0 0 440 940" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
+          <defs>
+            <linearGradient id="samsung_frame" x1="0" y1="0" x2="440" y2="940" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#4a4a4a"/>
+              <stop offset="0.2" stopColor="#2a2a2a"/>
+              <stop offset="0.5" stopColor="#1a1a1a"/>
+              <stop offset="0.8" stopColor="#2a2a2a"/>
+              <stop offset="1" stopColor="#4a4a4a"/>
+            </linearGradient>
+            <filter id="samsung_shadow">
+              <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#000" floodOpacity="0.4"/>
+            </filter>
+          </defs>
+
+          <rect x="0" y="0" width="440" height="940" rx={isUltra ? 8 : 16} fill="url(#samsung_frame)" filter="url(#samsung_shadow)"/>
+          <rect x="3" y="3" width="434" height="934" rx={isUltra ? 5 : 13} stroke="#222" strokeWidth="2" fill="none"/>
+
+          {/* Volume + Power buttons */}
+          <rect x="440" y="250" width="3" height="50" rx="1" fill="#333"/>
+          <rect x="440" y="320" width="3" height="80" rx="1" fill="#333"/>
+        </svg>
+
+        {/* Punch-hole camera */}
+        <svg viewBox="0 0 440 940" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
+          <circle cx="220" cy="28" r="10" fill="#0a0a0a"/>
+          <circle cx="220" cy="28" r="6" fill="black"/>
+          <circle cx="218" cy="26" r="1.5" fill="#222" opacity="0.5"/>
+        </svg>
+
+        <GlossOverlay borderRadius={isUltra ? "6px" : "12px"} />
+      </div>
+    );
+  }
+
+  /* =============================================
+     SAMSUNG GALAXY Z FOLD
+  ============================================= */
+  if (type === DeviceType.SAMSUNG_FOLD) {
+    return (
+      <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '9/22', ...style }}>
+        <div className="absolute inset-[2%] rounded-[8px] bg-black overflow-hidden z-20">
+          {renderContent({ borderRadius: '6px' })}
+        </div>
+
+        <svg viewBox="0 0 380 930" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
+          <defs>
+            <linearGradient id="fold_frame" x1="0" y1="0" x2="380" y2="930">
+              <stop stopColor="#3a3a3a"/>
+              <stop offset="0.5" stopColor="#1a1a1a"/>
+              <stop offset="1" stopColor="#3a3a3a"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="380" height="930" rx="10" fill="url(#fold_frame)"/>
+          <rect x="3" y="3" width="374" height="924" rx="7" stroke="#333" strokeWidth="2" fill="none"/>
+          {/* Fold hinge indicator */}
+          <line x1="0" y1="465" x2="380" y2="465" stroke="#444" strokeWidth="1" strokeDasharray="4 4"/>
+        </svg>
+
+        <svg viewBox="0 0 380 930" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
+          <circle cx="190" cy="25" r="8" fill="#0a0a0a"/>
+        </svg>
+
+        <GlossOverlay borderRadius="8px" />
+      </div>
+    );
+  }
+
+  /* =============================================
+     GOOGLE PIXEL 9 PRO / PIXEL 9
+     Rounded design, camera bar
+  ============================================= */
+  if (type === DeviceType.PIXEL_9_PRO || type === DeviceType.PIXEL_9 || type === DeviceType.PIXEL_8_PRO) {
+    const isPro = type === DeviceType.PIXEL_9_PRO || type === DeviceType.PIXEL_8_PRO;
+    return (
+      <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '9/20', ...style }}>
+        <div className="absolute inset-[3%] rounded-[36px] bg-black overflow-hidden z-20">
+          {renderContent({ borderRadius: '28px' })}
+        </div>
+
+        <svg viewBox="0 0 412 915" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
+          <defs>
+            <linearGradient id="pixel_frame" x1="0" y1="0" x2="412" y2="915">
+              <stop stopColor={isPro ? "#2a2a2a" : "#e8e8e8"}/>
+              <stop offset="0.5" stopColor={isPro ? "#1a1a1a" : "#d8d8d8"}/>
+              <stop offset="1" stopColor={isPro ? "#2a2a2a" : "#e8e8e8"}/>
+            </linearGradient>
+            <filter id="pixel_shadow">
+              <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#000" floodOpacity="0.3"/>
+            </filter>
+          </defs>
+
+          <rect x="0" y="0" width="412" height="915" rx="45" fill="url(#pixel_frame)" filter="url(#pixel_shadow)"/>
+          <rect x="4" y="4" width="404" height="907" rx="41" stroke={isPro ? "#333" : "#bbb"} strokeWidth="2" fill="none"/>
+
+          {/* Buttons */}
+          <rect x="412" y="200" width="3" height="40" rx="1.5" fill={isPro ? "#444" : "#ccc"}/>
+          <rect x="412" y="260" width="3" height="80" rx="1.5" fill={isPro ? "#444" : "#ccc"}/>
+        </svg>
+
+        {/* Punch-hole camera */}
+        <svg viewBox="0 0 412 915" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
+          <circle cx="206" cy="38" r="10" fill="#0a0a0a"/>
+          <circle cx="206" cy="38" r="6" fill="black"/>
+          <circle cx="204" cy="36" r="1.5" fill="#333" opacity="0.4"/>
+        </svg>
+
+        <GlossOverlay borderRadius="36px" />
+      </div>
+    );
+  }
+
+  /* =============================================
+     iPHONE SE (Classic with Home Button)
+  ============================================= */
   if (type === DeviceType.IPHONE_SE) {
     return (
       <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '9/18', ...style }}>
-         {/* Body Frame */}
-        <div className="absolute inset-[-10px] bg-white rounded-[36px] shadow-sm z-0 border border-gray-300"></div>
-        
-        {/* Top Bezel Content */}
+        <div className="absolute inset-[-8px] bg-gradient-to-b from-gray-100 to-gray-200 rounded-[32px] z-0 border border-gray-300"/>
+
+        {/* Top bezel with speaker */}
         <div className="absolute top-0 left-0 right-0 h-[12%] z-20 flex justify-center items-center">
-             <div className="w-[60px] h-[6px] bg-gray-300 rounded-full mb-2"></div>
-             <div className="w-[8px] h-[8px] bg-gray-900 rounded-full absolute left-[35%] mb-2"></div>
+          <div className="w-[50px] h-[5px] bg-gray-400 rounded-full mb-1"/>
+          <div className="w-[8px] h-[8px] bg-gray-800 rounded-full absolute left-[38%]"/>
         </div>
 
-        {/* Bottom Bezel Content (Home Button) */}
+        {/* Home button */}
         <div className="absolute bottom-0 left-0 right-0 h-[12%] z-20 flex justify-center items-center">
-             <div className="w-[44px] h-[44px] rounded-full border-[3px] border-gray-200 bg-white"></div>
+          <div className="w-[42px] h-[42px] rounded-full border-[3px] border-gray-300 bg-white shadow-inner"/>
         </div>
 
         {/* Buttons */}
-        <div className="h-[24px] w-[3px] bg-gray-300 absolute -left-[11px] top-[60px] rounded-l-md"></div>
-        <div className="h-[40px] w-[3px] bg-gray-300 absolute -left-[11px] top-[100px] rounded-l-md"></div>
-        <div className="h-[40px] w-[3px] bg-gray-300 absolute -left-[11px] top-[150px] rounded-l-md"></div>
-        <div className="h-[40px] w-[3px] bg-gray-300 absolute -right-[11px] top-[100px] rounded-r-md"></div>
+        <div className="h-[22px] w-[3px] bg-gray-400 absolute -left-[10px] top-[55px] rounded-l"/>
+        <div className="h-[35px] w-[3px] bg-gray-400 absolute -left-[10px] top-[90px] rounded-l"/>
+        <div className="h-[35px] w-[3px] bg-gray-400 absolute -left-[10px] top-[135px] rounded-l"/>
+        <div className="h-[35px] w-[3px] bg-gray-400 absolute -right-[10px] top-[95px] rounded-r"/>
 
-        {/* Screen Area Container (Inset) */}
-        <div className="absolute top-[12%] bottom-[12%] left-[4%] right-[4%] bg-black z-10 overflow-hidden border border-gray-200">
-             {renderContent({ borderRadius: '0px' })}
+        <div className="absolute top-[12%] bottom-[12%] left-[5%] right-[5%] bg-black z-10 overflow-hidden border border-gray-300">
+          {renderContent({ borderRadius: '0px' })}
         </div>
-        
-        <GlossOverlay borderRadius="0px" />
       </div>
     );
   }
 
-  /* --- SAMSUNG S24 ULTRA (Boxy, Sharp) --- */
-  if (type === DeviceType.SAMSUNG_S24) {
+  /* =============================================
+     iPAD PRO 13" / 11"
+  ============================================= */
+  if (type === DeviceType.IPAD_PRO_13 || type === DeviceType.IPAD_PRO_11 || type === DeviceType.TABLET) {
     return (
-      <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '9/19.5', ...style }}>
-         {/* Screen Container */}
-         <div className="absolute inset-[1.5%] rounded-[4px] bg-black overflow-hidden z-20">
-            {renderContent({ borderRadius: '2px' })}
-         </div>
+      <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '3/4', ...style }}>
+        <div className="absolute inset-[2.5%] rounded-[20px] bg-black overflow-hidden z-20">
+          {renderContent({ borderRadius: '14px' })}
+        </div>
 
-         {/* SVG Frame */}
-         <svg viewBox="0 0 440 940" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
-            <rect x="0" y="0" width="440" height="940" rx="6" fill="#333"/>
-            <rect x="4" y="4" width="432" height="932" rx="2" fill="none"/>
+        <svg viewBox="0 0 600 800" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
+          <defs>
+            <linearGradient id="ipad_frame" x1="0" y1="0" x2="600" y2="800">
+              <stop stopColor="#3a3a3a"/>
+              <stop offset="0.3" stopColor="#2a2a2a"/>
+              <stop offset="0.7" stopColor="#2a2a2a"/>
+              <stop offset="1" stopColor="#3a3a3a"/>
+            </linearGradient>
+            <filter id="ipad_shadow">
+              <feDropShadow dx="0" dy="4" stdDeviation="10" floodColor="#000" floodOpacity="0.3"/>
+            </filter>
+          </defs>
 
-            {/* Buttons */}
-            <rect x="440" y="250" width="3" height="60" rx="1.5" fill="#222"/>
-            <rect x="440" y="340" width="3" height="100" rx="1.5" fill="#222"/>
-         </svg>
+          <rect x="0" y="0" width="600" height="800" rx="32" fill="url(#ipad_frame)" filter="url(#ipad_shadow)"/>
+          <rect x="6" y="6" width="588" height="788" rx="26" stroke="#222" strokeWidth="2" fill="none"/>
+        </svg>
 
-         {/* Camera Dot Overlay - z-30 to appear above screen content */}
-         <svg viewBox="0 0 440 940" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
-            <circle cx="220" cy="30" r="8" fill="#111" stroke="#333" strokeWidth="2"/>
-         </svg>
+        {/* Camera */}
+        <svg viewBox="0 0 600 800" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
+          <circle cx="300" cy="25" r="6" fill="#1a1a1a"/>
+          <circle cx="300" cy="25" r="3" fill="#0a0a0a"/>
+        </svg>
 
-         <GlossOverlay borderRadius="4px" />
+        <GlossOverlay borderRadius="20px" />
       </div>
     );
   }
 
-  /* --- SAMSUNG S23 (Rounded) --- */
+  /* =============================================
+     LEGACY: SAMSUNG S23
+  ============================================= */
   if (type === DeviceType.SAMSUNG_S23) {
     return (
       <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '9/19.5', ...style }}>
-         <div className="absolute inset-[3%] rounded-[28px] bg-black overflow-hidden z-20">
-            {renderContent({ borderRadius: '20px' })}
-         </div>
+        <div className="absolute inset-[3%] rounded-[28px] bg-black overflow-hidden z-20">
+          {renderContent({ borderRadius: '20px' })}
+        </div>
 
-         <svg viewBox="0 0 430 932" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
-             <rect x="0" y="0" width="430" height="932" rx="48" fill="#e2e2e2"/>
-             <rect x="8" y="8" width="414" height="916" rx="38" fill="none"/>
+        <svg viewBox="0 0 430 932" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
+          <rect x="0" y="0" width="430" height="932" rx="45" fill="#e2e2e2"/>
+          <rect x="6" y="6" width="418" height="920" rx="39" stroke="#ccc" strokeWidth="2" fill="none"/>
+          <rect x="430" y="180" width="3" height="50" rx="1.5" fill="#ccc"/>
+          <rect x="430" y="260" width="3" height="90" rx="1.5" fill="#ccc"/>
+        </svg>
 
-             <rect x="430" y="180" width="3" height="50" rx="1.5" fill="#ccc"/>
-             <rect x="430" y="260" width="3" height="90" rx="1.5" fill="#ccc"/>
-         </svg>
+        <svg viewBox="0 0 430 932" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
+          <circle cx="215" cy="40" r="10" fill="#111"/>
+        </svg>
 
-         {/* Camera Dot Overlay - z-30 to appear above screen content */}
-         <svg viewBox="0 0 430 932" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
-             <circle cx="215" cy="40" r="10" fill="#111"/>
-         </svg>
-
-         <GlossOverlay borderRadius="28px" />
+        <GlossOverlay borderRadius="28px" />
       </div>
     );
   }
 
-  /* --- iPHONE 14 PLUS --- */
-  if (type === DeviceType.IPHONE_14_PLUS) {
-    return (
-       <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '9/19.5', ...style }}>
-         <div className="absolute inset-[3.5%] rounded-[40px] bg-black overflow-hidden z-20">
-            {renderContent({ borderRadius: '32px' })}
-         </div>
-
-         <svg viewBox="0 0 430 932" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
-             <rect x="0" y="0" width="430" height="932" rx="55" fill="#f2f2f2" stroke="#d1d1d1" strokeWidth="2"/>
-             <rect x="12" y="12" width="406" height="908" rx="46" fill="none"/>
-         </svg>
-
-         {/* Notch Overlay - z-30 to appear above screen content */}
-         <svg viewBox="0 0 430 932" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
-             <path d="M145 12h140v30c0 12-10 22-22 22H167c-12 0-22-10-22-22V12z" fill="black"/>
-         </svg>
-
-         <GlossOverlay borderRadius="40px" />
-      </div>
-    );
-  }
-
-  /* --- ANDROID PIXEL 8 / 7 --- */
-  if (type === DeviceType.ANDROID_PIXEL || type === DeviceType.PIXEL_7) {
+  /* =============================================
+     LEGACY: PIXEL 7 / ANDROID_PIXEL
+  ============================================= */
+  if (type === DeviceType.PIXEL_7 || type === DeviceType.ANDROID_PIXEL) {
     const isPixel7 = type === DeviceType.PIXEL_7;
-    const cornerRadius = isPixel7 ? '20px' : '30px';
-    const frameColor = isPixel7 ? '#f0f0f0' : '#333';
-
     return (
       <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '9/20', ...style }}>
-         <div className="absolute inset-[3.5%] rounded-[24px] bg-black overflow-hidden z-20">
-            {renderContent({ borderRadius: '20px' })}
-         </div>
+        <div className="absolute inset-[3.5%] rounded-[24px] bg-black overflow-hidden z-20">
+          {renderContent({ borderRadius: '20px' })}
+        </div>
 
-         <svg viewBox="0 0 412 915" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
-             <rect x="0" y="0" width="412" height="915" rx={isPixel7 ? "30" : "40"} fill={frameColor} stroke="#999" strokeWidth="1"/>
-             <rect x="10" y="10" width="392" height="895" rx={isPixel7 ? "24" : "34"} fill="none"/>
+        <svg viewBox="0 0 412 915" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
+          <rect x="0" y="0" width="412" height="915" rx={isPixel7 ? 30 : 40} fill={isPixel7 ? "#f0f0f0" : "#333"} stroke="#999" strokeWidth="1"/>
+          <rect x="412" y="150" width="3" height="40" rx="1.5" fill="#555"/>
+          <rect x="412" y="210" width="3" height="80" rx="1.5" fill="#555"/>
+        </svg>
 
-             <rect x="412" y="150" width="3" height="40" rx="1.5" fill="#555"/>
-             <rect x="412" y="210" width="3" height="80" rx="1.5" fill="#555"/>
-         </svg>
+        <svg viewBox="0 0 412 915" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
+          <circle cx="206" cy="40" r="10" fill="#111" stroke="#333" strokeWidth="2"/>
+        </svg>
 
-         {/* Camera Dot Overlay - z-30 to appear above screen content */}
-         <svg viewBox="0 0 412 915" className="absolute inset-0 w-full h-full z-30 pointer-events-none">
-             <circle cx="206" cy="40" r="10" fill="#111" stroke="#333" strokeWidth="2"/>
-         </svg>
-
-         <GlossOverlay borderRadius="24px" />
+        <GlossOverlay borderRadius="24px" />
       </div>
     );
   }
 
-  // Tablet
+  // Fallback - Generic tablet
   return (
     <div className={`relative mx-auto ${className}`} style={{ aspectRatio: '3/4', ...style }}>
-         <div className="absolute inset-[20px] rounded-[16px] bg-black overflow-hidden z-30">
-            {renderContent({ borderRadius: '12px' })}
-         </div>
-         <div className="absolute inset-0 bg-[#222] rounded-[32px] -z-10"></div>
+      <div className="absolute inset-[20px] rounded-[16px] bg-black overflow-hidden z-20">
+        {renderContent({ borderRadius: '12px' })}
+      </div>
+      <div className="absolute inset-0 bg-[#222] rounded-[32px] -z-10"/>
     </div>
   );
 };
