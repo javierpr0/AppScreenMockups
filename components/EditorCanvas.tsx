@@ -7,9 +7,11 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants';
 interface EditorCanvasProps {
   config: ScreenConfig;
   canvasRef: React.RefObject<HTMLDivElement>;
+  zoom?: number;
+  pan?: { x: number; y: number };
 }
 
-const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef }) => {
+const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef, zoom = 0.3, pan = { x: 0, y: 0 } }) => {
   const { background, text, devices } = config;
 
   const getAlignClass = (align: TextConfig['alignment']) => {
@@ -22,16 +24,22 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef }) => {
 
   const isTextTop = text.position === 'top';
 
+  // Calcular dimensiones escaladas para centrado
+  const scaledWidth = CANVAS_WIDTH * zoom;
+  const scaledHeight = CANVAS_HEIGHT * zoom;
+
   return (
-    <div className="flex justify-center items-center p-8 bg-slate-900/50 min-h-full overflow-auto">
+    <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
       <div
-        className="relative shadow-2xl overflow-hidden shrink-0"
+        className="relative shadow-2xl overflow-hidden"
         ref={canvasRef}
         style={{
           width: `${CANVAS_WIDTH}px`,
           height: `${CANVAS_HEIGHT}px`,
-          transform: 'scale(0.30)', // Fixed preview scale
-          transformOrigin: 'top center',
+          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+          transformOrigin: 'center center',
+          // Compensar el tamaño visual para que flex center funcione
+          margin: `${(scaledHeight - CANVAS_HEIGHT) / 2}px ${(scaledWidth - CANVAS_WIDTH) / 2}px`,
         }}
       >
         {/* Background Layer */}
@@ -44,31 +52,40 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef }) => {
         <div className={`absolute inset-0 w-full h-full flex flex-col p-20 ${isTextTop ? 'justify-start pt-32' : 'justify-end pb-32'}`}>
             
             {/* Text Area */}
-            <div 
+            <div
               className={`relative z-20 flex flex-col pointer-events-none ${getAlignClass(text.alignment)}`}
-              style={{ 
+              style={{
                 order: isTextTop ? 0 : 2,
                 marginTop: isTextTop ? '0' : 'auto',
-                marginBottom: isTextTop ? 'auto' : '0'
+                marginBottom: isTextTop ? 'auto' : '0',
+                maxWidth: `${text.maxWidth || 100}%`,
               }}
             >
-              <h1 
-                className="font-bold leading-tight mb-6 whitespace-pre-wrap"
-                style={{ 
-                  color: text.titleColor, 
-                  fontSize: '80px',
+              <h1
+                className="leading-tight mb-6 whitespace-pre-wrap"
+                style={{
+                  color: text.titleColor,
+                  fontSize: `${text.titleSize || 80}px`,
                   fontFamily: text.fontFamily,
-                  textShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                  fontWeight: text.titleWeight || 700,
+                  letterSpacing: `${text.letterSpacing || 0}px`,
+                  lineHeight: text.lineHeight || 1.2,
+                  textShadow: text.textShadow
+                    ? `0 4px ${text.textShadowBlur || 12}px ${text.textShadowColor || 'rgba(0,0,0,0.15)'}`
+                    : 'none',
                 }}
               >
                 {text.title}
               </h1>
-              <h2 
-                className="font-medium leading-normal opacity-90 whitespace-pre-wrap"
-                style={{ 
-                  color: text.subtitleColor, 
-                  fontSize: '48px',
+              <h2
+                className="leading-normal opacity-90 whitespace-pre-wrap"
+                style={{
+                  color: text.subtitleColor,
+                  fontSize: `${text.subtitleSize || 48}px`,
                   fontFamily: text.fontFamily,
+                  fontWeight: text.subtitleWeight || 500,
+                  letterSpacing: `${text.letterSpacing || 0}px`,
+                  lineHeight: text.lineHeight || 1.2,
                 }}
               >
                 {text.subtitle}

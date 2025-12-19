@@ -181,6 +181,17 @@ export const DEFAULT_SCREEN_CONFIG: ScreenConfig = {
     fontFamily: 'Inter',
     alignment: 'center',
     position: 'top',
+    // Advanced text settings
+    titleSize: 80,
+    subtitleSize: 48,
+    titleWeight: 700,
+    subtitleWeight: 500,
+    letterSpacing: 0,
+    lineHeight: 1.2,
+    textShadow: true,
+    textShadowBlur: 12,
+    textShadowColor: '#000000',
+    maxWidth: 100,
   },
   background: {
     type: 'gradient',

@@ -17,6 +17,17 @@ export interface TextConfig {
   fontFamily: string;
   alignment: 'left' | 'center' | 'right';
   position: 'top' | 'bottom';
+  // Advanced text settings
+  titleSize: number;           // 48-120px
+  subtitleSize: number;        // 24-72px
+  titleWeight: number;         // 400-800
+  subtitleWeight: number;      // 400-700
+  letterSpacing: number;       // -2 to 8
+  lineHeight: number;          // 1.0 to 2.0
+  textShadow: boolean;
+  textShadowBlur: number;
+  textShadowColor: string;
+  maxWidth: number;            // 50-100 (percentage)
 }
 
 // Background Types
@@ -154,4 +165,24 @@ export interface GifExportConfig {
   quality: number;   // 1-10
   width: number;
   height: number;
+}
+
+// Project and Screen Types (Multi-screen support)
+export interface Screen {
+  id: string;
+  name: string;
+  order: number;
+  config: ScreenConfig;
+  thumbnail?: string;  // Base64 mini preview
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  screens: Screen[];
+  activeScreenId: string;
+  createdAt: number;
+  updatedAt: number;
 }

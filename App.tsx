@@ -1,14 +1,35 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import EditorCanvas from './components/EditorCanvas';
+import ScreensPanel from './components/ScreensPanel';
+import CanvasControls from './components/CanvasControls';
 import { ScreenConfig, ExportConfig, AnimationConfig, GifExportConfig } from './types';
-import { DEFAULT_SCREEN_CONFIG, DEFAULT_EXPORT_CONFIG, DEFAULT_ANIMATION_CONFIG, DEFAULT_GIF_CONFIG } from './constants';
+import { DEFAULT_EXPORT_CONFIG, DEFAULT_ANIMATION_CONFIG, DEFAULT_GIF_CONFIG, CANVAS_WIDTH, CANVAS_HEIGHT } from './constants';
 import { ExportService, ExportProgress } from './services/exportService';
 import { GifExportService } from './services/gifExportService';
 import { useAnimation } from './hooks/useAnimation';
+import { useProject } from './hooks/useProject';
+import html2canvas from 'html2canvas';
 
 const App: React.FC = () => {
-  const [config, setConfig] = useState<ScreenConfig>(DEFAULT_SCREEN_CONFIG);
+  // Project management
+  const {
+    project,
+    activeScreen,
+    activeConfig,
+    addScreen,
+    duplicateActiveScreen,
+    deleteScreen,
+    selectScreen,
+    renameScreen,
+    reorderScreens,
+    updateActiveConfig,
+    updateScreenThumbnail,
+    renameProject,
+    resetProject,
+  } = useProject();
+
+  // Export state
   const [exportConfig, setExportConfig] = useState<ExportConfig>(DEFAULT_EXPORT_CONFIG);
   const [animationConfig, setAnimationConfig] = useState<AnimationConfig>(DEFAULT_ANIMATION_CONFIG);
   const [gifConfig, setGifConfig] = useState<GifExportConfig>(DEFAULT_GIF_CONFIG);
@@ -16,7 +37,15 @@ const App: React.FC = () => {
   const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
   const [isExportingGif, setIsExportingGif] = useState(false);
   const [gifProgress, setGifProgress] = useState<number | null>(null);
+
+  // Zoom/Pan state
+  const [zoom, setZoom] = useState(0.3); // Default matches canvas preview scale
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+
   const canvasRef = useRef<HTMLDivElement>(null);
+  const canvasAreaRef = useRef<HTMLDivElement>(null);
 
   // Animation hook
   const {
@@ -27,14 +56,102 @@ const App: React.FC = () => {
     seek,
     currentTime,
     isPlaying
-  } = useAnimation(config.devices, animationConfig);
+  } = useAnimation(activeConfig.devices, animationConfig);
 
   // Create config with animated devices for rendering
   const renderConfig = {
-    ...config,
-    devices: animationConfig.enabled ? animatedDevices : config.devices
+    ...activeConfig,
+    devices: animationConfig.enabled ? animatedDevices : activeConfig.devices
   };
 
+  // Generate thumbnail when switching screens
+  const generateThumbnail = useCallback(async () => {
+    if (!canvasRef.current) return;
+
+    try {
+      const canvas = await html2canvas(canvasRef.current, {
+        scale: 0.1, // Small thumbnail
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+      });
+
+      const thumbnail = canvas.toDataURL('image/jpeg', 0.3);
+      updateScreenThumbnail(activeScreen.id, thumbnail);
+    } catch (error) {
+      console.error('Failed to generate thumbnail:', error);
+    }
+  }, [activeScreen.id, updateScreenThumbnail]);
+
+  // Generate thumbnail after config changes (debounced)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      generateThumbnail();
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [activeConfig, generateThumbnail]);
+
+  // Zoom handlers
+  const handleZoomIn = useCallback(() => {
+    setZoom(prev => Math.min(prev + 0.1, 3));
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    setZoom(prev => Math.max(prev - 0.1, 0.1));
+  }, []);
+
+  const handleResetZoom = useCallback(() => {
+    setZoom(0.3);
+    setPan({ x: 0, y: 0 });
+  }, []);
+
+  const handleFitToView = useCallback(() => {
+    if (!canvasAreaRef.current) return;
+
+    const container = canvasAreaRef.current;
+    const containerWidth = container.clientWidth - 32; // Padding
+    const containerHeight = container.clientHeight - 32;
+
+    const scaleX = containerWidth / CANVAS_WIDTH;
+    const scaleY = containerHeight / CANVAS_HEIGHT;
+    const fitZoom = Math.min(scaleX, scaleY, 1);
+
+    setZoom(fitZoom);
+    setPan({ x: 0, y: 0 });
+  }, []);
+
+  // Mouse wheel zoom
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.05 : 0.05;
+      setZoom(prev => Math.max(0.1, Math.min(3, prev + delta)));
+    }
+  }, []);
+
+  // Pan handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button === 1 || (e.button === 0 && e.altKey)) { // Middle click or Alt+click
+      e.preventDefault();
+      setIsPanning(true);
+      setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    }
+  }, [pan]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (isPanning) {
+      setPan({
+        x: e.clientX - panStart.x,
+        y: e.clientY - panStart.y
+      });
+    }
+  }, [isPanning, panStart]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false);
+  }, []);
+
+  // Export handlers
   const handleExportSingle = async () => {
     if (!canvasRef.current) return;
 
@@ -80,10 +197,8 @@ const App: React.FC = () => {
       setIsExportingGif(true);
       setGifProgress(0);
 
-      // Create a seek function that updates animation and waits for render
       const seekAnimation = async (time: number) => {
         seek(time);
-        // Wait for state to update and re-render
         await new Promise(resolve => setTimeout(resolve, 50));
       };
 
@@ -107,25 +222,61 @@ const App: React.FC = () => {
   }, [animationConfig, gifConfig, seek, stop]);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-950">
+    <div className="flex h-screen w-screen overflow-hidden bg-zinc-950">
       <main className="flex-1 h-full relative overflow-hidden flex flex-col">
-        {/* Top Bar for Mobile/Tablet views could go here, currently Sidebar handles controls */}
-        <div className="flex-1 relative bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 to-slate-950">
-           {/* Grid Pattern Background */}
-           <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" 
-                style={{ 
-                    backgroundImage: 'linear-gradient(#334155 1px, transparent 1px), linear-gradient(90deg, #334155 1px, transparent 1px)',
-                    backgroundSize: '40px 40px'
-                }} 
-           ></div>
-           
-           <EditorCanvas config={renderConfig} canvasRef={canvasRef} />
+        {/* Screens Panel - Horizontal above canvas */}
+        <ScreensPanel
+          project={project}
+          activeScreenId={activeScreen.id}
+          onSelectScreen={selectScreen}
+          onAddScreen={addScreen}
+          onDuplicateScreen={duplicateActiveScreen}
+          onDeleteScreen={deleteScreen}
+          onRenameScreen={renameScreen}
+          onRenameProject={renameProject}
+        />
+
+        {/* Canvas Area */}
+        <div
+          ref={canvasAreaRef}
+          className="flex-1 relative bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900 to-zinc-950 overflow-hidden"
+          onWheel={handleWheel}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          style={{ cursor: isPanning ? 'grabbing' : 'default' }}
+        >
+          {/* Grid Pattern Background */}
+          <div
+            className="absolute inset-0 z-0 opacity-20 pointer-events-none"
+            style={{
+              backgroundImage: 'linear-gradient(#3f3f46 1px, transparent 1px), linear-gradient(90deg, #3f3f46 1px, transparent 1px)',
+              backgroundSize: '40px 40px'
+            }}
+          />
+
+          <EditorCanvas
+            config={renderConfig}
+            canvasRef={canvasRef}
+            zoom={zoom}
+            pan={pan}
+          />
+
+          {/* Canvas Controls */}
+          <CanvasControls
+            zoom={zoom}
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            onResetZoom={handleResetZoom}
+            onFitToView={handleFitToView}
+          />
         </div>
       </main>
 
       <Sidebar
-        config={config}
-        onChange={setConfig}
+        config={activeConfig}
+        onChange={updateActiveConfig}
         exportConfig={exportConfig}
         onExportConfigChange={setExportConfig}
         onExportSingle={handleExportSingle}
