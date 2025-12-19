@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScreenConfig, TextConfig } from '../types';
 import DeviceFrame from './DeviceFrame';
+import { BackgroundRenderer } from './backgrounds';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants';
 
 interface EditorCanvasProps {
@@ -10,15 +11,6 @@ interface EditorCanvasProps {
 
 const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef }) => {
   const { background, text, devices } = config;
-
-  const getBackgroundStyle = () => {
-    if (background.type === 'solid') {
-      return { backgroundColor: background.color1 };
-    }
-    return { 
-      background: `linear-gradient(${background.direction}, ${background.color1}, ${background.color2})` 
-    };
-  };
 
   const getAlignClass = (align: TextConfig['alignment']) => {
     switch (align) {
@@ -32,7 +24,7 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef }) => {
 
   return (
     <div className="flex justify-center items-center p-8 bg-slate-900/50 min-h-full overflow-auto">
-      <div 
+      <div
         className="relative shadow-2xl overflow-hidden shrink-0"
         ref={canvasRef}
         style={{
@@ -40,9 +32,15 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef }) => {
           height: `${CANVAS_HEIGHT}px`,
           transform: 'scale(0.30)', // Fixed preview scale
           transformOrigin: 'top center',
-          ...getBackgroundStyle()
         }}
       >
+        {/* Background Layer */}
+        <BackgroundRenderer
+          config={background}
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
+        />
+
         <div className={`absolute inset-0 w-full h-full flex flex-col p-20 ${isTextTop ? 'justify-start pt-32' : 'justify-end pb-32'}`}>
             
             {/* Text Area */}

@@ -1,4 +1,152 @@
-import { DeviceType, ScreenConfig, Template } from './types';
+import { DeviceType, ScreenConfig, Template, BackgroundConfig, ExportSize, ExportConfig, AnimationPreset, AnimationConfig, GifExportConfig } from './types';
+
+// Animation Presets
+export const ANIMATION_PRESETS: AnimationPreset[] = [
+  {
+    id: 'slide-in-bottom',
+    name: 'Slide In',
+    description: 'Device slides up from bottom',
+    duration: 1500,
+    keyframes: [
+      { time: 0, properties: { y: 400, opacity: 0, scale: 0.8 } },
+      { time: 0.6, properties: { y: -20, opacity: 1, scale: 0.92 } },
+      { time: 1, properties: { y: 0, opacity: 1, scale: 0.9 } }
+    ]
+  },
+  {
+    id: 'rotate-3d',
+    name: 'Rotate 3D',
+    description: 'Smooth 3D rotation',
+    duration: 2000,
+    keyframes: [
+      { time: 0, properties: { rotateY: -25, rotateX: 5 } },
+      { time: 0.5, properties: { rotateY: 25, rotateX: -5 } },
+      { time: 1, properties: { rotateY: 0, rotateX: 0 } }
+    ]
+  },
+  {
+    id: 'float',
+    name: 'Float',
+    description: 'Gentle floating motion',
+    duration: 2500,
+    keyframes: [
+      { time: 0, properties: { y: 0, rotation: 0 } },
+      { time: 0.25, properties: { y: -25, rotation: 1 } },
+      { time: 0.5, properties: { y: 0, rotation: 0 } },
+      { time: 0.75, properties: { y: -25, rotation: -1 } },
+      { time: 1, properties: { y: 0, rotation: 0 } }
+    ]
+  },
+  {
+    id: 'zoom-in',
+    name: 'Zoom In',
+    description: 'Scale from small to normal',
+    duration: 1200,
+    keyframes: [
+      { time: 0, properties: { scale: 0.5, opacity: 0 } },
+      { time: 0.7, properties: { scale: 0.95, opacity: 1 } },
+      { time: 1, properties: { scale: 0.9, opacity: 1 } }
+    ]
+  }
+];
+
+export const DEFAULT_ANIMATION_CONFIG: AnimationConfig = {
+  enabled: false,
+  presetId: null,
+  duration: 2000,
+  loop: true,
+  playbackState: 'stopped',
+  currentTime: 0
+};
+
+export const DEFAULT_GIF_CONFIG: GifExportConfig = {
+  fps: 15,
+  quality: 8,
+  width: 621,
+  height: 1104
+};
+
+// Export Sizes for App Store and Google Play
+export const EXPORT_SIZES: ExportSize[] = [
+  // iOS - App Store
+  { id: 'ios-6.7', name: 'iPhone 6.7"', platform: 'ios', width: 1290, height: 2796, suffix: '6.7' },
+  { id: 'ios-6.5', name: 'iPhone 6.5"', platform: 'ios', width: 1242, height: 2688, suffix: '6.5' },
+  { id: 'ios-5.5', name: 'iPhone 5.5"', platform: 'ios', width: 1242, height: 2208, suffix: '5.5' },
+  { id: 'ios-ipad-12.9', name: 'iPad Pro 12.9"', platform: 'ios', width: 2048, height: 2732, suffix: 'ipad-12.9' },
+
+  // Android - Google Play
+  { id: 'android-phone', name: 'Android Phone', platform: 'android', width: 1080, height: 1920, suffix: 'android' },
+  { id: 'android-phone-hd', name: 'Android Phone HD', platform: 'android', width: 1440, height: 3040, suffix: 'android-hd' },
+];
+
+export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
+  selectedSizes: ['ios-6.7', 'ios-5.5', 'android-phone'],
+  format: 'png',
+  quality: 1,
+};
+
+// Background Presets
+export interface BackgroundPreset {
+  name: string;
+  config: BackgroundConfig;
+}
+
+export const BACKGROUND_PRESETS: BackgroundPreset[] = [
+  {
+    name: 'Indigo Purple',
+    config: {
+      type: 'gradient',
+      color1: '#4f46e5',
+      color2: '#9333ea',
+      direction: 'to bottom right'
+    }
+  },
+  {
+    name: 'Ocean Blue',
+    config: {
+      type: 'gradient',
+      color1: '#0ea5e9',
+      color2: '#2563eb',
+      direction: 'to bottom'
+    }
+  },
+  {
+    name: 'Sunset',
+    config: {
+      type: 'gradient',
+      color1: '#f97316',
+      color2: '#ec4899',
+      direction: 'to bottom right'
+    }
+  },
+  {
+    name: 'Emerald',
+    config: {
+      type: 'gradient',
+      color1: '#10b981',
+      color2: '#0d9488',
+      direction: 'to bottom'
+    }
+  },
+  {
+    name: 'Dark Slate',
+    config: {
+      type: 'solid',
+      color1: '#0f172a',
+      color2: '#0f172a',
+      direction: 'to bottom'
+    }
+  },
+  {
+    name: 'Midnight',
+    config: {
+      type: 'gradient',
+      color1: '#1e1b4b',
+      color2: '#0c0a09',
+      direction: 'to bottom'
+    }
+  }
+];
 
 const DEFAULT_SHADOW = {
   enabled: true,
