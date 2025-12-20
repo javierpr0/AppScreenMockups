@@ -1,12 +1,7 @@
 import { encode } from 'modern-gif';
+import * as htmlToImage from 'html-to-image';
 import { GifExportConfig, AnimationConfig } from '../types';
 import { ANIMATION_PRESETS, CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants';
-
-declare global {
-  interface Window {
-    html2canvas: (element: HTMLElement, options?: any) => Promise<HTMLCanvasElement>;
-  }
-}
 
 export interface GifExportProgress {
   phase: 'capturing' | 'encoding';
@@ -24,26 +19,39 @@ export class GifExportService {
     width: number,
     height: number
   ): Promise<ImageData> {
-    // Save current transform and temporarily remove it for accurate capture
+    // Save current styles
     const originalTransform = sourceElement.style.transform;
-    const originalTransformOrigin = sourceElement.style.transformOrigin;
+    const originalMargin = sourceElement.style.margin;
+    const originalPosition = sourceElement.style.position;
+    const originalLeft = sourceElement.style.left;
+    const originalTop = sourceElement.style.top;
 
-    // Remove transform for capture
-    sourceElement.style.transform = 'none';
-    sourceElement.style.transformOrigin = 'top left';
-
-    // Calculate scale for high quality capture
-    const scale = Math.max(width / CANVAS_WIDTH, height / CANVAS_HEIGHT, 1);
+    // Get parent and save its overflow
+    const parent = sourceElement.parentElement;
+    const originalOverflow = parent?.style.overflow || '';
 
     try {
-      const canvas = await window.html2canvas(sourceElement, {
-        scale: scale,
-        useCORS: true,
-        backgroundColor: '#000000', // Fallback background
+      // Temporarily reset styles for capture
+      sourceElement.style.transform = 'none';
+      sourceElement.style.margin = '0';
+      sourceElement.style.position = 'absolute';
+      sourceElement.style.left = '0';
+      sourceElement.style.top = '0';
+
+      if (parent) {
+        parent.style.overflow = 'visible';
+      }
+
+      // Calculate scale for quality
+      const pixelRatio = Math.max(width / CANVAS_WIDTH, height / CANVAS_HEIGHT, 1);
+
+      // Capture using html-to-image
+      const canvas = await htmlToImage.toCanvas(sourceElement, {
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
-        logging: false,
-        allowTaint: true,
+        pixelRatio: pixelRatio,
+        skipFonts: true, // Skip fonts for faster GIF capture
+        cacheBust: false,
       });
 
       // Resize to exact dimensions
@@ -70,9 +78,16 @@ export class GifExportService {
 
       return ctx.getImageData(0, 0, width, height);
     } finally {
-      // Restore original transform
+      // Restore original styles
       sourceElement.style.transform = originalTransform;
-      sourceElement.style.transformOrigin = originalTransformOrigin;
+      sourceElement.style.margin = originalMargin;
+      sourceElement.style.position = originalPosition;
+      sourceElement.style.left = originalLeft;
+      sourceElement.style.top = originalTop;
+
+      if (parent) {
+        parent.style.overflow = originalOverflow;
+      }
     }
   }
 

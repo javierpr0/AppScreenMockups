@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import html2canvas from 'html2canvas';
+import * as htmlToImage from 'html-to-image';
 import { ExportSize } from '../types';
 import { EXPORT_SIZES, CANVAS_WIDTH, CANVAS_HEIGHT } from '../constants';
 
@@ -16,6 +16,46 @@ export interface ExportProgress {
 
 export class ExportService {
   /**
+   * Prepares element for capture and returns cleanup function
+   */
+  private static prepareForCapture(sourceElement: HTMLElement): () => void {
+    // Save original styles
+    const originalTransform = sourceElement.style.transform;
+    const originalMargin = sourceElement.style.margin;
+    const originalPosition = sourceElement.style.position;
+    const originalLeft = sourceElement.style.left;
+    const originalTop = sourceElement.style.top;
+
+    // Get parent and save its overflow
+    const parent = sourceElement.parentElement;
+    const originalOverflow = parent?.style.overflow || '';
+
+    // Temporarily reset styles for capture
+    sourceElement.style.transform = 'none';
+    sourceElement.style.margin = '0';
+    sourceElement.style.position = 'absolute';
+    sourceElement.style.left = '0';
+    sourceElement.style.top = '0';
+
+    if (parent) {
+      parent.style.overflow = 'visible';
+    }
+
+    // Return cleanup function
+    return () => {
+      sourceElement.style.transform = originalTransform;
+      sourceElement.style.margin = originalMargin;
+      sourceElement.style.position = originalPosition;
+      sourceElement.style.left = originalLeft;
+      sourceElement.style.top = originalTop;
+
+      if (parent) {
+        parent.style.overflow = originalOverflow;
+      }
+    };
+  }
+
+  /**
    * Generates a scaled canvas to the desired size
    */
   static async generateScaledCanvas(
@@ -23,43 +63,50 @@ export class ExportService {
     targetWidth: number,
     targetHeight: number
   ): Promise<HTMLCanvasElement> {
-    // Calculate scale factor
-    const scaleX = targetWidth / CANVAS_WIDTH;
-    const scaleY = targetHeight / CANVAS_HEIGHT;
-    const scale = Math.max(scaleX, scaleY);
+    const cleanup = this.prepareForCapture(sourceElement);
 
-    // Capture with html2canvas
-    const canvas = await html2canvas(sourceElement, {
-      scale: scale,
-      useCORS: true,
-      backgroundColor: null,
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
-    });
+    try {
+      // Wait for styles to apply
+      await new Promise(resolve => requestAnimationFrame(resolve));
 
-    // Resize to exact dimensions
-    const finalCanvas = document.createElement('canvas');
-    finalCanvas.width = targetWidth;
-    finalCanvas.height = targetHeight;
-    const ctx = finalCanvas.getContext('2d')!;
+      // Calculate pixel ratio for quality
+      const pixelRatio = Math.max(targetWidth / CANVAS_WIDTH, targetHeight / CANVAS_HEIGHT, 2);
 
-    // Calculate crop dimensions (cover mode)
-    const sourceAspect = canvas.width / canvas.height;
-    const targetAspect = targetWidth / targetHeight;
+      // Capture using html-to-image
+      const canvas = await htmlToImage.toCanvas(sourceElement, {
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+        pixelRatio: pixelRatio,
+        skipFonts: false,
+        cacheBust: true,
+      });
 
-    let sx = 0, sy = 0, sWidth = canvas.width, sHeight = canvas.height;
+      // Resize to exact dimensions
+      const finalCanvas = document.createElement('canvas');
+      finalCanvas.width = targetWidth;
+      finalCanvas.height = targetHeight;
+      const ctx = finalCanvas.getContext('2d')!;
 
-    if (sourceAspect > targetAspect) {
-      sWidth = canvas.height * targetAspect;
-      sx = (canvas.width - sWidth) / 2;
-    } else {
-      sHeight = canvas.width / targetAspect;
-      sy = (canvas.height - sHeight) / 2;
+      // Calculate crop dimensions (cover mode)
+      const sourceAspect = canvas.width / canvas.height;
+      const targetAspect = targetWidth / targetHeight;
+
+      let sx = 0, sy = 0, sWidth = canvas.width, sHeight = canvas.height;
+
+      if (sourceAspect > targetAspect) {
+        sWidth = canvas.height * targetAspect;
+        sx = (canvas.width - sWidth) / 2;
+      } else {
+        sHeight = canvas.width / targetAspect;
+        sy = (canvas.height - sHeight) / 2;
+      }
+
+      ctx.drawImage(canvas, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
+
+      return finalCanvas;
+    } finally {
+      cleanup();
     }
-
-    ctx.drawImage(canvas, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
-
-    return finalCanvas;
   }
 
   /**
@@ -141,18 +188,32 @@ export class ExportService {
   }
 
   /**
-   * Exports a single PNG (current behavior)
+   * Exports a single PNG (main export function)
    */
   static async exportSinglePng(sourceElement: HTMLElement): Promise<void> {
-    const canvas = await html2canvas(sourceElement, {
-      scale: 1,
-      useCORS: true,
-      backgroundColor: null,
-    });
+    const cleanup = this.prepareForCapture(sourceElement);
 
-    const link = document.createElement('a');
-    link.download = `mockup-${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    try {
+      // Wait for styles to apply
+      await new Promise(resolve => requestAnimationFrame(resolve));
+
+      // Capture at 2x resolution for quality
+      const dataUrl = await htmlToImage.toPng(sourceElement, {
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+        pixelRatio: 2,
+        skipFonts: false,
+        cacheBust: true,
+      });
+
+      const link = document.createElement('a');
+      link.download = `mockup-${Date.now()}.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } finally {
+      cleanup();
+    }
   }
 }

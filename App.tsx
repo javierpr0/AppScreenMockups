@@ -9,7 +9,7 @@ import { ExportService, ExportProgress } from './services/exportService';
 import { GifExportService } from './services/gifExportService';
 import { useAnimation } from './hooks/useAnimation';
 import { useProject } from './hooks/useProject';
-import html2canvas from 'html2canvas';
+import * as htmlToImage from 'html-to-image';
 
 const App: React.FC = () => {
   // Project management
@@ -69,14 +69,11 @@ const App: React.FC = () => {
     if (!canvasRef.current) return;
 
     try {
-      const canvas = await html2canvas(canvasRef.current, {
-        scale: 0.1, // Small thumbnail
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
+      const thumbnail = await htmlToImage.toJpeg(canvasRef.current, {
+        quality: 0.3,
+        pixelRatio: 0.1, // Small thumbnail
+        skipFonts: true,
       });
-
-      const thumbnail = canvas.toDataURL('image/jpeg', 0.3);
       updateScreenThumbnail(activeScreen.id, thumbnail);
     } catch (error) {
       console.error('Failed to generate thumbnail:', error);

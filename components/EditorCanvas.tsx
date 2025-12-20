@@ -33,6 +33,7 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef, zoom = 0
       <div
         className="relative shadow-2xl overflow-hidden"
         ref={canvasRef}
+        data-canvas-ref="true"
         style={{
           width: `${CANVAS_WIDTH}px`,
           height: `${CANVAS_HEIGHT}px`,

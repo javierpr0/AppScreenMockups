@@ -1,5 +1,7 @@
 export enum DeviceType {
   // Apple - Modern
+  IPHONE_17_PRO = 'iPhone 17 Pro',
+  IPHONE_17_PRO_MAX = 'iPhone 17 Pro Max',
   IPHONE_16_PRO = 'iPhone 16 Pro',
   IPHONE_16_PRO_MAX = 'iPhone 16 Pro Max',
   IPHONE_15_PRO = 'iPhone 15 Pro',

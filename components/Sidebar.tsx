@@ -78,6 +78,8 @@ const DEVICE_GROUPS = [
   {
     name: 'iPhone',
     devices: [
+      DeviceType.IPHONE_17_PRO,
+      DeviceType.IPHONE_17_PRO_MAX,
       DeviceType.IPHONE_16_PRO,
       DeviceType.IPHONE_16_PRO_MAX,
       DeviceType.IPHONE_15_PRO,
@@ -137,6 +139,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [selectedDeviceIndex, setSelectedDeviceIndex] = useState(0)
   const [activeTab, setActiveTab] = useState<'design' | 'export'>('design')
+  const [showAllTemplates, setShowAllTemplates] = useState(false)
   const currentDevice = config.devices[selectedDeviceIndex] || config.devices[0]
 
   const updateCurrentDevice = (updates: Partial<DeviceConfig>) => {
@@ -236,7 +239,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             {/* Templates Section */}
             <Section title="Templates" icon={<Grid size={14} />} defaultOpen={false}>
               <div className="grid grid-cols-2 gap-1.5">
-                {TEMPLATES.slice(0, 12).map((t, idx) => (
+                {(showAllTemplates ? TEMPLATES : TEMPLATES.slice(0, 10)).map((t, idx) => (
                   <button
                     key={idx}
                     onClick={() => applyTemplate(t.config)}
@@ -247,9 +250,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </button>
                 ))}
               </div>
-              {TEMPLATES.length > 12 && (
-                <button className="w-full text-[10px] text-zinc-500 hover:text-zinc-300 py-2">
-                  Show all {TEMPLATES.length} templates
+              {TEMPLATES.length > 10 && (
+                <button
+                  onClick={() => setShowAllTemplates(!showAllTemplates)}
+                  className="w-full text-[10px] text-indigo-400 hover:text-indigo-300 py-2 transition-colors"
+                >
+                  {showAllTemplates ? 'Show less' : `Show all ${TEMPLATES.length} templates`}
                 </button>
               )}
             </Section>
