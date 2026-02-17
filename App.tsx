@@ -10,9 +10,14 @@ import { GifExportService } from './services/gifExportService';
 import { useAnimation } from './hooks/useAnimation';
 import { useProject } from './hooks/useProject';
 import * as htmlToImage from 'html-to-image';
-import { Undo2, Redo2 } from 'lucide-react';
+import { Undo2, Redo2, Upload, Download } from 'lucide-react';
+import { ProjectImportExportService } from './services/projectImportExportService';
+import { Project } from './types';
+import { useToast } from './components/ui/toast';
 
 const App: React.FC = () => {
+  const { showToast } = useToast();
+  
   // Project management
   const {
     project,
@@ -187,7 +192,7 @@ const App: React.FC = () => {
       await ExportService.exportSinglePng(canvasRef.current);
     } catch (error) {
       console.error("Export failed", error);
-      alert("Could not export image. Please try again.");
+      showToast("Could not export image. Please try again.", 'error');
     } finally {
       setIsExporting(false);
     }
@@ -207,9 +212,10 @@ const App: React.FC = () => {
       );
 
       ExportService.downloadBlob(zip, `mockups-${Date.now()}.zip`);
+      showToast("Images exported successfully!", 'success');
     } catch (error) {
       console.error("Export failed", error);
-      alert("Could not export images. Please try again.");
+      showToast("Could not export images. Please try again.", 'error');
     } finally {
       setIsExporting(false);
       setExportProgress(null);
@@ -238,15 +244,53 @@ const App: React.FC = () => {
       );
 
       GifExportService.downloadBlob(gifBlob, `animation-${Date.now()}.gif`);
+      showToast("GIF exported successfully!", 'success');
     } catch (error) {
       console.error("GIF export failed", error);
-      alert("Could not export GIF. Please try again.");
+      showToast("Could not export GIF. Please try again.", 'error');
     } finally {
       setIsExportingGif(false);
       setGifProgress(null);
       stop();
     }
-  }, [animationConfig, gifConfig, seek, stop]);
+  }, [animationConfig, gifConfig, seek, stop, showToast]);
+
+  // Import/Export handlers
+  const handleExportProject = useCallback(() => {
+    ProjectImportExportService.exportProject(project);
+    showToast('Project exported successfully!', 'success');
+  }, [project, showToast]);
+
+  const handleImportProject = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const importedProject = await ProjectImportExportService.importProject(file);
+      
+      // Confirm before overwriting
+      if (project.screens.length > 1 || project.screens[0].config.devices.length > 0) {
+        const confirmed = window.confirm(
+          'Importing will replace your current project. Are you sure?'
+        );
+        if (!confirmed) return;
+      }
+
+      // Load imported project by resetting state
+      resetProject(); // This creates a new blank project first
+      // Then we need to update with the imported data
+      // Since resetProject creates a new project, we need to override it
+      const { storageService } = await import('./services/storageService');
+      storageService.saveNow(importedProject);
+      showToast('Project imported successfully!', 'success');
+      window.location.reload(); // Reload to load the new project
+    } catch (error) {
+      showToast(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+    }
+
+    // Reset input
+    e.target.value = '';
+  }, [project, resetProject, showToast]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-zinc-950">
@@ -280,6 +324,25 @@ const App: React.FC = () => {
               <Redo2 className="w-4 h-4" />
               <span className="hidden sm:inline">Redo</span>
             </button>
+            <div className="w-px h-6 bg-zinc-700 mx-2" />
+            <button
+              onClick={handleExportProject}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-zinc-200 hover:bg-zinc-800 hover:text-white transition-colors"
+              title="Export Project"
+            >
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">Export</span>
+            </button>
+            <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-zinc-200 hover:bg-zinc-800 hover:text-white transition-colors cursor-pointer">
+              <Upload className="w-4 h-4" />
+              <span className="hidden sm:inline">Import</span>
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportProject}
+                className="hidden"
+              />
+            </label>
           </div>
           <div className="text-xs text-zinc-500">
             {canUndo && 'Press Ctrl+Z to undo'}
