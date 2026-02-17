@@ -201,8 +201,10 @@ export const DEFAULT_SCREEN_CONFIG: ScreenConfig = {
   },
 };
 
-export const DEVICE_ASPECT_RATIOS: Record<DeviceType, number> = {
+export const DEVICE_ASPECT_RATIOS: Record<string, number> = {
   // Apple Modern
+  [DeviceType.IPHONE_17_PRO]: 9 / 19.5,
+  [DeviceType.IPHONE_17_PRO_MAX]: 9 / 19.5,
   [DeviceType.IPHONE_16_PRO]: 9 / 19.5,
   [DeviceType.IPHONE_16_PRO_MAX]: 9 / 19.5,
   [DeviceType.IPHONE_15_PRO]: 9 / 19.5,
@@ -223,9 +225,9 @@ export const DEVICE_ASPECT_RATIOS: Record<DeviceType, number> = {
   [DeviceType.PIXEL_8_PRO]: 9 / 20,
 
   // Legacy
+  // ANDROID_PIXEL is omitted: its enum value ('Pixel 8 Pro') duplicates PIXEL_8_PRO above
   [DeviceType.IPHONE_14_PLUS]: 9 / 19.5,
   [DeviceType.SAMSUNG_S23]: 9 / 19.5,
-  [DeviceType.ANDROID_PIXEL]: 9 / 20,
   [DeviceType.PIXEL_7]: 9 / 20,
   [DeviceType.TABLET]: 3 / 4,
 };

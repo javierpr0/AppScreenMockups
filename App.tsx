@@ -250,8 +250,8 @@ const App: React.FC = () => {
       const newDevices = [...activeConfig.devices];
       newDevices[dragDeviceIndex] = {
         ...newDevices[dragDeviceIndex],
-        x: deviceStartPos.x + dx,
-        y: deviceStartPos.y + dy
+        x: Math.round(deviceStartPos.x + dx),
+        y: Math.round(deviceStartPos.y + dy)
       };
       
       updateActiveConfig({ ...activeConfig, devices: newDevices }, false);

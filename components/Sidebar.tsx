@@ -16,6 +16,7 @@ import {
   Play, Pause, Square, Film
 } from 'lucide-react'
 import { ExportProgress } from '../services/exportService'
+import { LayersPanel } from './LayersPanel'
 
 interface SidebarProps {
   config: ScreenConfig
@@ -462,6 +463,24 @@ const Sidebar: React.FC<SidebarProps> = ({
                 />
               </div>
             </Section>
+
+            {/* Layers Section */}
+            {config.devices.length > 1 && (
+              <Section title="Layers" icon={<Layers size={14} />} badge={`${config.devices.length}`} defaultOpen={true}>
+                <LayersPanel
+                  devices={config.devices}
+                  selectedIndex={selectedDeviceIndex}
+                  onSelectDevice={setSelectedDeviceIndex}
+                  onUpdateDevices={(newDevices) => onChange({ ...config, devices: newDevices })}
+                  onDeleteDevice={(index) => {
+                    if (config.devices.length <= 1) return
+                    const newDevices = config.devices.filter((_, i) => i !== index)
+                    onChange({ ...config, devices: newDevices })
+                    setSelectedDeviceIndex(Math.max(0, selectedDeviceIndex - 1))
+                  }}
+                />
+              </Section>
+            )}
 
             {/* Text Section */}
             <Section title="Text" icon={<Type size={14} />}>
