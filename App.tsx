@@ -10,10 +10,11 @@ import { GifExportService } from './services/gifExportService';
 import { useAnimation } from './hooks/useAnimation';
 import { useProject } from './hooks/useProject';
 import * as htmlToImage from 'html-to-image';
-import { Undo2, Redo2, Upload, Download } from 'lucide-react';
+import { Undo2, Redo2, Upload, Download, Keyboard } from 'lucide-react';
 import { ProjectImportExportService } from './services/projectImportExportService';
 import { Project } from './types';
 import { useToast } from './components/ui/toast';
+import { KeyboardShortcuts } from './components/KeyboardShortcuts';
 
 const App: React.FC = () => {
   const { showToast } = useToast();
@@ -54,10 +55,24 @@ const App: React.FC = () => {
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
+  // Selected device state
+  const [selectedDeviceIndex, setSelectedDeviceIndex] = useState(0);
+
   const canvasRef = useRef<HTMLDivElement>(null);
   const canvasAreaRef = useRef<HTMLDivElement>(null);
 
-  // Keyboard shortcuts for undo/redo
+  // Animation hook
+  const {
+    animatedDevices,
+    play,
+    pause,
+    stop,
+    seek,
+    currentTime,
+    isPlaying
+  } = useAnimation(activeConfig.devices, animationConfig);
+
+  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore if user is typing in an input
@@ -76,22 +91,48 @@ const App: React.FC = () => {
         e.preventDefault();
         if (canRedo) redo();
       }
+
+      // Delete: Remove selected device
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        if (activeConfig.devices.length > 1) {
+          const newDevices = activeConfig.devices.filter((_, i) => i !== selectedDeviceIndex);
+          updateActiveConfig({ ...activeConfig, devices: newDevices });
+          setSelectedDeviceIndex(Math.max(0, selectedDeviceIndex - 1));
+          showToast('Device deleted', 'info');
+        } else {
+          showToast('Cannot delete the last device', 'error');
+        }
+      }
+
+      // Space: Play/Pause animation
+      if (e.key === ' ' && animationConfig.enabled) {
+        e.preventDefault();
+        if (isPlaying) {
+          pause();
+        } else {
+          play();
+        }
+      }
+
+      // Ctrl/Cmd + D: Duplicate screen
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+        e.preventDefault();
+        duplicateActiveScreen();
+        showToast('Screen duplicated', 'success');
+      }
+
+      // Escape: Stop animation or clear selection
+      if (e.key === 'Escape') {
+        if (isPlaying) {
+          stop();
+        }
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, canUndo, canRedo]);
-
-  // Animation hook
-  const {
-    animatedDevices,
-    play,
-    pause,
-    stop,
-    seek,
-    currentTime,
-    isPlaying
-  } = useAnimation(activeConfig.devices, animationConfig);
+  }, [undo, redo, canUndo, canRedo, activeConfig, selectedDeviceIndex, updateActiveConfig, showToast, animationConfig.enabled, isPlaying, play, pause, stop, duplicateActiveScreen]);
 
   // Create config with animated devices for rendering
   const renderConfig = {
@@ -422,7 +463,11 @@ const App: React.FC = () => {
         isPlaying={isPlaying}
         isExportingGif={isExportingGif}
         gifProgress={gifProgress}
+        selectedDeviceIndex={selectedDeviceIndex}
+        setSelectedDeviceIndex={setSelectedDeviceIndex}
       />
+
+      <KeyboardShortcuts />
     </div>
   );
 };

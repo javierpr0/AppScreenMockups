@@ -39,6 +39,8 @@ interface SidebarProps {
   isPlaying: boolean
   isExportingGif: boolean
   gifProgress: number | null
+  selectedDeviceIndex: number
+  setSelectedDeviceIndex: (index: number) => void
 }
 
 // Collapsible Section Component
@@ -135,9 +137,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   currentTime,
   isPlaying,
   isExportingGif,
-  gifProgress
+  gifProgress,
+  selectedDeviceIndex,
+  setSelectedDeviceIndex
 }) => {
-  const [selectedDeviceIndex, setSelectedDeviceIndex] = useState(0)
   const [activeTab, setActiveTab] = useState<'design' | 'export'>('design')
   const [showAllTemplates, setShowAllTemplates] = useState(false)
   const currentDevice = config.devices[selectedDeviceIndex] || config.devices[0]
