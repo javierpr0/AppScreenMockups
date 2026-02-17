@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
 import { Project, Screen, ScreenConfig } from '../types';
 import {
   storageService,
   createNewProject,
   createNewScreen,
   duplicateScreen,
-  generateId,
 } from '../services/storageService';
+import { useHistory } from './useHistory';
 
 interface UseProjectReturn {
   project: Project;
@@ -22,28 +22,33 @@ interface UseProjectReturn {
   reorderScreens: (fromIndex: number, toIndex: number) => void;
 
   // Config actions
-  updateActiveConfig: (config: ScreenConfig) => void;
+  updateActiveConfig: (config: ScreenConfig, trackHistory?: boolean) => void;
   updateScreenThumbnail: (screenId: string, thumbnail: string) => void;
 
   // Project actions
   renameProject: (name: string) => void;
   resetProject: () => void;
+
+  // History actions
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 }
 
 export const useProject = (): UseProjectReturn => {
-  const [project, setProject] = useState<Project>(() => {
+  const initialProject = (() => {
     const loaded = storageService.load();
     return loaded || createNewProject();
-  });
+  })();
 
-  const isInitialMount = useRef(true);
+  const { state: project, set, setWithHistory, undo, redo, canUndo, canRedo, reset } = useHistory(
+    initialProject,
+    { maxHistory: 50, debounceMs: 1000 }
+  );
 
-  // Auto-save on project changes
+  // Auto-save on project changes (not on undo/redo)
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
     storageService.save(project);
   }, [project]);
 
@@ -55,7 +60,7 @@ export const useProject = (): UseProjectReturn => {
 
   // Add new screen
   const addScreen = useCallback(() => {
-    setProject(prev => {
+    setWithHistory(prev => {
       const newScreen = createNewScreen(prev.screens.length);
       return {
         ...prev,
@@ -64,11 +69,11 @@ export const useProject = (): UseProjectReturn => {
         updatedAt: Date.now(),
       };
     });
-  }, []);
+  }, [setWithHistory]);
 
   // Duplicate active screen
   const duplicateActiveScreen = useCallback(() => {
-    setProject(prev => {
+    setWithHistory(prev => {
       const currentScreen = prev.screens.find(s => s.id === prev.activeScreenId);
       if (!currentScreen) return prev;
 
@@ -80,11 +85,11 @@ export const useProject = (): UseProjectReturn => {
         updatedAt: Date.now(),
       };
     });
-  }, []);
+  }, [setWithHistory]);
 
   // Delete screen
   const deleteScreen = useCallback((screenId: string) => {
-    setProject(prev => {
+    setWithHistory(prev => {
       // Don't delete if only one screen
       if (prev.screens.length <= 1) return prev;
 
@@ -114,11 +119,11 @@ export const useProject = (): UseProjectReturn => {
         updatedAt: Date.now(),
       };
     });
-  }, []);
+  }, [setWithHistory]);
 
   // Select screen
   const selectScreen = useCallback((screenId: string) => {
-    setProject(prev => {
+    set(prev => {
       if (prev.activeScreenId === screenId) return prev;
       const exists = prev.screens.some(s => s.id === screenId);
       if (!exists) return prev;
@@ -129,11 +134,11 @@ export const useProject = (): UseProjectReturn => {
         updatedAt: Date.now(),
       };
     });
-  }, []);
+  }, [set]);
 
   // Rename screen
   const renameScreen = useCallback((screenId: string, name: string) => {
-    setProject(prev => ({
+    set(prev => ({
       ...prev,
       screens: prev.screens.map(s =>
         s.id === screenId
@@ -142,11 +147,11 @@ export const useProject = (): UseProjectReturn => {
       ),
       updatedAt: Date.now(),
     }));
-  }, []);
+  }, [set]);
 
   // Reorder screens (for future drag & drop)
   const reorderScreens = useCallback((fromIndex: number, toIndex: number) => {
-    setProject(prev => {
+    setWithHistory(prev => {
       const screens = [...prev.screens];
       const [moved] = screens.splice(fromIndex, 1);
       screens.splice(toIndex, 0, moved);
@@ -162,11 +167,12 @@ export const useProject = (): UseProjectReturn => {
         updatedAt: Date.now(),
       };
     });
-  }, []);
+  }, [setWithHistory]);
 
   // Update active screen config
-  const updateActiveConfig = useCallback((config: ScreenConfig) => {
-    setProject(prev => ({
+  const updateActiveConfig = useCallback((config: ScreenConfig, trackHistory: boolean = true) => {
+    const updateFn = trackHistory ? setWithHistory : set;
+    updateFn(prev => ({
       ...prev,
       screens: prev.screens.map(s =>
         s.id === prev.activeScreenId
@@ -175,11 +181,11 @@ export const useProject = (): UseProjectReturn => {
       ),
       updatedAt: Date.now(),
     }));
-  }, []);
+  }, [set, setWithHistory]);
 
   // Update screen thumbnail
   const updateScreenThumbnail = useCallback((screenId: string, thumbnail: string) => {
-    setProject(prev => ({
+    set(prev => ({
       ...prev,
       screens: prev.screens.map(s =>
         s.id === screenId
@@ -187,23 +193,23 @@ export const useProject = (): UseProjectReturn => {
           : s
       ),
     }));
-  }, []);
+  }, [set]);
 
   // Rename project
   const renameProject = useCallback((name: string) => {
-    setProject(prev => ({
+    set(prev => ({
       ...prev,
       name: name.trim() || prev.name,
       updatedAt: Date.now(),
     }));
-  }, []);
+  }, [set]);
 
   // Reset project (new blank project)
   const resetProject = useCallback(() => {
     const newProject = createNewProject();
-    setProject(newProject);
+    reset(newProject);
     storageService.saveNow(newProject);
-  }, []);
+  }, [reset]);
 
   return {
     project,
@@ -219,5 +225,11 @@ export const useProject = (): UseProjectReturn => {
     updateScreenThumbnail,
     renameProject,
     resetProject,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   };
 };
+
+export default useProject;

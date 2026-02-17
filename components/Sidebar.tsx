@@ -19,7 +19,7 @@ import { ExportProgress } from '../services/exportService'
 
 interface SidebarProps {
   config: ScreenConfig
-  onChange: (newConfig: ScreenConfig) => void
+  onChange: (newConfig: ScreenConfig, trackHistory?: boolean) => void
   exportConfig: ExportConfig
   onExportConfigChange: (config: ExportConfig) => void
   onExportSingle: () => void
@@ -467,7 +467,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <Label className="text-[11px] text-zinc-400">Title</Label>
                   <Textarea
                     value={config.text.title}
-                    onChange={(e) => onChange({ ...config, text: { ...config.text, title: e.target.value } })}
+                    onChange={(e) => onChange({ ...config, text: { ...config.text, title: e.target.value } }, false)}
                     placeholder="Your App Title"
                     className="min-h-[60px] text-sm bg-zinc-800 border-zinc-700 resize-none"
                   />
@@ -477,7 +477,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <Label className="text-[11px] text-zinc-400">Subtitle</Label>
                   <Input
                     value={config.text.subtitle}
-                    onChange={(e) => onChange({ ...config, text: { ...config.text, subtitle: e.target.value } })}
+                    onChange={(e) => onChange({ ...config, text: { ...config.text, subtitle: e.target.value } }, false)}
                     placeholder="Describe your feature"
                     className="h-8 text-sm bg-zinc-800 border-zinc-700"
                   />

@@ -3,13 +3,14 @@ import Sidebar from './components/Sidebar';
 import EditorCanvas from './components/EditorCanvas';
 import ScreensPanel from './components/ScreensPanel';
 import CanvasControls from './components/CanvasControls';
-import { ScreenConfig, ExportConfig, AnimationConfig, GifExportConfig } from './types';
+import { ExportConfig, AnimationConfig, GifExportConfig } from './types';
 import { DEFAULT_EXPORT_CONFIG, DEFAULT_ANIMATION_CONFIG, DEFAULT_GIF_CONFIG, CANVAS_WIDTH, CANVAS_HEIGHT } from './constants';
 import { ExportService, ExportProgress } from './services/exportService';
 import { GifExportService } from './services/gifExportService';
 import { useAnimation } from './hooks/useAnimation';
 import { useProject } from './hooks/useProject';
 import * as htmlToImage from 'html-to-image';
+import { Undo2, Redo2 } from 'lucide-react';
 
 const App: React.FC = () => {
   // Project management
@@ -27,6 +28,10 @@ const App: React.FC = () => {
     updateScreenThumbnail,
     renameProject,
     resetProject,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   } = useProject();
 
   // Export state
@@ -46,6 +51,31 @@ const App: React.FC = () => {
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const canvasAreaRef = useRef<HTMLDivElement>(null);
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Ctrl/Cmd + Z: Undo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        if (canUndo) undo();
+      }
+
+      // Ctrl/Cmd + Shift + Z or Ctrl/Cmd + Y: Redo
+      if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === 'z') || (e.ctrlKey && e.key === 'y')) {
+        e.preventDefault();
+        if (canRedo) redo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo, canUndo, canRedo]);
 
   // Animation hook
   const {
@@ -221,6 +251,42 @@ const App: React.FC = () => {
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-zinc-950">
       <main className="flex-1 h-full relative overflow-hidden flex flex-col">
+        {/* Top Toolbar with Undo/Redo */}
+        <div className="flex items-center justify-between px-4 py-2 bg-zinc-900 border-b border-zinc-800">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={undo}
+              disabled={!canUndo}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                canUndo
+                  ? 'text-zinc-200 hover:bg-zinc-800 hover:text-white'
+                  : 'text-zinc-600 cursor-not-allowed'
+              }`}
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Undo</span>
+            </button>
+            <button
+              onClick={redo}
+              disabled={!canRedo}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                canRedo
+                  ? 'text-zinc-200 hover:bg-zinc-800 hover:text-white'
+                  : 'text-zinc-600 cursor-not-allowed'
+              }`}
+              title="Redo (Ctrl+Shift+Z)"
+            >
+              <Redo2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Redo</span>
+            </button>
+          </div>
+          <div className="text-xs text-zinc-500">
+            {canUndo && 'Press Ctrl+Z to undo'}
+            {canRedo && !canUndo && 'Press Ctrl+Shift+Z to redo'}
+          </div>
+        </div>
+
         {/* Screens Panel - Horizontal above canvas */}
         <ScreensPanel
           project={project}

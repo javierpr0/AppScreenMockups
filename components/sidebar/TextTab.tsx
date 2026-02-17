@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 
 interface TextTabProps {
   text: TextConfig
-  onChange: (key: keyof TextConfig, value: any) => void
+  onChange: (key: keyof TextConfig, value: any, trackHistory?: boolean) => void
 }
 
 const FONT_FAMILIES = [
@@ -44,7 +44,7 @@ export const TextTab: React.FC<TextTabProps> = ({ text, onChange }) => {
           <Label>Title</Label>
           <Textarea
             value={text.title}
-            onChange={(e) => onChange('title', e.target.value)}
+            onChange={(e) => onChange('title', e.target.value, false)}
             rows={2}
             className="resize-none"
           />
@@ -54,7 +54,7 @@ export const TextTab: React.FC<TextTabProps> = ({ text, onChange }) => {
           <Label>Subtitle</Label>
           <Textarea
             value={text.subtitle}
-            onChange={(e) => onChange('subtitle', e.target.value)}
+            onChange={(e) => onChange('subtitle', e.target.value, false)}
             rows={2}
             className="resize-none"
           />
