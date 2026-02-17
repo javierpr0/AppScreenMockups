@@ -1,5 +1,5 @@
-import React from 'react';
-import { GripVertical, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { GripVertical, Trash2 } from 'lucide-react';
 import { DeviceConfig, DeviceType } from '../types';
 import { cn } from '@/lib/utils';
 
@@ -42,25 +42,10 @@ export const LayersPanel: React.FC<LayersPanelProps> = ({
   onUpdateDevices,
   onDeleteDevice,
 }) => {
-  const moveLayer = (index: number, direction: 'up' | 'down') => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= devices.length) return;
-
-    const newDevices = [...devices];
-    // Swap zIndex values between the two devices
-    const tempZ = newDevices[index].zIndex;
-    newDevices[index] = { ...newDevices[index], zIndex: newDevices[targetIndex].zIndex };
-    newDevices[targetIndex] = { ...newDevices[targetIndex], zIndex: tempZ };
-
-    onUpdateDevices(newDevices);
-
-    // Keep selection following the moved device
-    if (selectedIndex === index) {
-      onSelectDevice(targetIndex);
-    } else if (selectedIndex === targetIndex) {
-      onSelectDevice(index);
-    }
-  };
+  // Drag state tracks the display-order indices (sorted by zIndex desc)
+  const [dragFromDisplay, setDragFromDisplay] = useState<number | null>(null);
+  const [dragOverDisplay, setDragOverDisplay] = useState<number | null>(null);
+  const dragCounterRef = useRef(0);
 
   if (devices.length <= 1) return null;
 
@@ -69,24 +54,91 @@ export const LayersPanel: React.FC<LayersPanelProps> = ({
     .map((device, index) => ({ device, index }))
     .sort((a, b) => b.device.zIndex - a.device.zIndex);
 
+  const handleDragStart = (displayIndex: number, e: React.DragEvent) => {
+    setDragFromDisplay(displayIndex);
+    e.dataTransfer.effectAllowed = 'move';
+    // Make the drag image semi-transparent
+    if (e.currentTarget instanceof HTMLElement) {
+      e.dataTransfer.setDragImage(e.currentTarget, 0, 0);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDragFromDisplay(null);
+    setDragOverDisplay(null);
+    dragCounterRef.current = 0;
+  };
+
+  const handleDragEnter = (displayIndex: number) => {
+    dragCounterRef.current++;
+    setDragOverDisplay(displayIndex);
+  };
+
+  const handleDragLeave = () => {
+    dragCounterRef.current--;
+    if (dragCounterRef.current <= 0) {
+      setDragOverDisplay(null);
+      dragCounterRef.current = 0;
+    }
+  };
+
+  const handleDrop = (targetDisplayIndex: number) => {
+    if (dragFromDisplay === null || dragFromDisplay === targetDisplayIndex) {
+      handleDragEnd();
+      return;
+    }
+
+    const fromDeviceIndex = layerOrder[dragFromDisplay].index;
+    const toDeviceIndex = layerOrder[targetDisplayIndex].index;
+
+    // Swap zIndex values
+    const newDevices = [...devices];
+    const tempZ = newDevices[fromDeviceIndex].zIndex;
+    newDevices[fromDeviceIndex] = { ...newDevices[fromDeviceIndex], zIndex: newDevices[toDeviceIndex].zIndex };
+    newDevices[toDeviceIndex] = { ...newDevices[toDeviceIndex], zIndex: tempZ };
+
+    onUpdateDevices(newDevices);
+
+    // Keep selection following the dragged device
+    if (selectedIndex === fromDeviceIndex) {
+      onSelectDevice(fromDeviceIndex); // index doesn't change, only zIndex
+    }
+
+    handleDragEnd();
+  };
+
   return (
-    <div className="space-y-1">
-      {layerOrder.map(({ device, index }) => {
+    <div className="space-y-0.5">
+      {layerOrder.map(({ device, index }, displayIndex) => {
         const isSelected = index === selectedIndex;
+        const isDragging = dragFromDisplay === displayIndex;
+        const isDragOver = dragOverDisplay === displayIndex && dragFromDisplay !== displayIndex;
 
         return (
           <div
             key={device.id}
+            draggable
+            onDragStart={(e) => handleDragStart(displayIndex, e)}
+            onDragEnd={handleDragEnd}
+            onDragOver={(e) => e.preventDefault()}
+            onDragEnter={() => handleDragEnter(displayIndex)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => {
+              e.preventDefault();
+              handleDrop(displayIndex);
+            }}
             onClick={() => onSelectDevice(index)}
             className={cn(
               'group flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[11px] transition-colors cursor-pointer',
               isSelected
                 ? 'bg-indigo-600/20 border border-indigo-500/30'
-                : 'hover:bg-zinc-800/50 border border-transparent'
+                : 'hover:bg-zinc-800/50 border border-transparent',
+              isDragging && 'opacity-40',
+              isDragOver && 'border-indigo-400/60 bg-indigo-600/10'
             )}
           >
-            {/* Drag hint */}
-            <GripVertical className="w-3 h-3 text-zinc-600 shrink-0" />
+            {/* Drag handle */}
+            <GripVertical className="w-3 h-3 text-zinc-600 shrink-0 cursor-grab active:cursor-grabbing" />
 
             {/* Device info */}
             <div className="flex-1 min-w-0 flex items-center gap-1.5">
@@ -107,32 +159,6 @@ export const LayersPanel: React.FC<LayersPanelProps> = ({
             <span className="text-[9px] text-zinc-600 tabular-nums shrink-0">
               z{device.zIndex}
             </span>
-
-            {/* Reorder buttons */}
-            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  moveLayer(index, 'up');
-                }}
-                disabled={index <= 0}
-                className="p-0.5 text-zinc-600 hover:text-zinc-300 disabled:opacity-20 disabled:cursor-not-allowed"
-                title="Move up (higher z-index)"
-              >
-                <ChevronUp className="w-3 h-3" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  moveLayer(index, 'down');
-                }}
-                disabled={index >= devices.length - 1}
-                className="p-0.5 text-zinc-600 hover:text-zinc-300 disabled:opacity-20 disabled:cursor-not-allowed"
-                title="Move down (lower z-index)"
-              >
-                <ChevronDown className="w-3 h-3" />
-              </button>
-            </div>
 
             {/* Delete */}
             <button
