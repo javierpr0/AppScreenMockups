@@ -69,50 +69,52 @@ const ScreenThumbnail: React.FC<ScreenThumbnailProps> = ({
       onClick={onSelect}
     >
       {/* Thumbnail with name overlay */}
-      <div
-        className={cn(
-          "relative w-14 h-8 rounded overflow-hidden border transition-all",
-          "bg-zinc-800 flex items-center justify-center",
-          isActive
-            ? "border-indigo-500 ring-1 ring-indigo-500/30 bg-indigo-500/10"
-            : "border-zinc-700 hover:border-zinc-500"
-        )}
-      >
-        {screen.thumbnail ? (
-          <img
-            src={screen.thumbnail}
-            alt={screen.name}
-            className="w-full h-full object-cover opacity-60"
-          />
-        ) : null}
-
-        {/* Name overlay */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {isEditing ? (
-            <Input
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-              onClick={(e) => e.stopPropagation()}
-              className="h-5 w-12 text-[9px] text-center px-0.5 py-0 bg-zinc-900/80"
-              autoFocus
-            />
-          ) : (
-            <span
-              onDoubleClick={handleDoubleClick}
-              className={cn(
-                "text-[9px] font-medium truncate px-1",
-                isActive ? "text-white" : "text-zinc-400"
-              )}
-              title={screen.name}
-            >
-              {screen.name.length > 8 ? screen.name.slice(0, 7) + '…' : screen.name}
-            </span>
+      <div className="relative">
+        <div
+          className={cn(
+            "relative w-14 h-8 rounded overflow-hidden border transition-all",
+            "bg-zinc-800 flex items-center justify-center",
+            isActive
+              ? "border-indigo-500 ring-1 ring-indigo-500/30 bg-indigo-500/10"
+              : "border-zinc-700 hover:border-zinc-500"
           )}
+        >
+          {screen.thumbnail ? (
+            <img
+              src={screen.thumbnail}
+              alt={screen.name}
+              className="w-full h-full object-cover opacity-60"
+            />
+          ) : null}
+
+          {/* Name overlay */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            {isEditing ? (
+              <Input
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                onClick={(e) => e.stopPropagation()}
+                className="h-5 w-12 text-[9px] text-center px-0.5 py-0 bg-zinc-900/80"
+                autoFocus
+              />
+            ) : (
+              <span
+                onDoubleClick={handleDoubleClick}
+                className={cn(
+                  "text-[9px] font-medium truncate px-1",
+                  isActive ? "text-white" : "text-zinc-400"
+                )}
+                title={screen.name}
+              >
+                {screen.name.length > 8 ? screen.name.slice(0, 7) + '…' : screen.name}
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Delete button */}
+        {/* Delete button – outside overflow-hidden container */}
         {canDelete && (
           <button
             onClick={(e) => {
@@ -124,7 +126,7 @@ const ScreenThumbnail: React.FC<ScreenThumbnailProps> = ({
               "bg-red-500 hover:bg-red-600 text-white text-[9px]",
               "flex items-center justify-center leading-none",
               "opacity-0 group-hover:opacity-100 transition-opacity",
-              "shadow"
+              "shadow z-10"
             )}
           >
             ×
