@@ -9,9 +9,18 @@ interface EditorCanvasProps {
   canvasRef: React.RefObject<HTMLDivElement>;
   zoom?: number;
   pan?: { x: number; y: number };
+  onDeviceMouseDown?: (e: React.MouseEvent, deviceIndex: number) => void;
+  selectedDeviceIndex?: number;
 }
 
-const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef, zoom = 0.3, pan = { x: 0, y: 0 } }) => {
+const EditorCanvas: React.FC<EditorCanvasProps> = ({ 
+  config, 
+  canvasRef, 
+  zoom = 0.3, 
+  pan = { x: 0, y: 0 },
+  onDeviceMouseDown,
+  selectedDeviceIndex = 0
+}) => {
   const { background, text, devices } = config;
 
   const getAlignClass = (align: TextConfig['alignment']) => {
@@ -102,7 +111,8 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef, zoom = 0
                     className="absolute top-1/2 left-1/2 w-0 h-0"
                     style={{ transformStyle: 'preserve-3d' }}
                 >
-                    {devices.map((device) => {
+                    {devices.map((device, index) => {
+                        const isSelected = index === selectedDeviceIndex;
                         const shadowStyle = device.shadow.enabled
                         ? `0px ${device.shadow.offsetY}px ${device.shadow.blur}px ${device.shadow.color}${Math.round(device.shadow.opacity * 255).toString(16).padStart(2, '0')}`
                         : 'none';
@@ -110,6 +120,7 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef, zoom = 0
                         return (
                             <div
                                 key={device.id}
+                                onMouseDown={(e) => onDeviceMouseDown?.(e, index)}
                                 style={{
                                     position: 'absolute',
                                     left: 0,
@@ -126,7 +137,12 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({ config, canvasRef, zoom = 0
                                     `,
                                     transformOrigin: 'center center',
                                     zIndex: device.zIndex,
-                                    filter: `drop-shadow(${shadowStyle})`
+                                    filter: `drop-shadow(${shadowStyle})`,
+                                    cursor: onDeviceMouseDown ? 'grab' : 'default',
+                                    pointerEvents: onDeviceMouseDown ? 'auto' : 'none',
+                                    outline: isSelected ? '2px solid #6366f1' : 'none',
+                                    outlineOffset: '8px',
+                                    borderRadius: '4px'
                                 }}
                             >
                                 <DeviceFrame

@@ -58,6 +58,12 @@ const App: React.FC = () => {
   // Selected device state
   const [selectedDeviceIndex, setSelectedDeviceIndex] = useState(0);
 
+  // Drag and drop state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragDeviceIndex, setDragDeviceIndex] = useState<number | null>(null);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [deviceStartPos, setDeviceStartPos] = useState({ x: 0, y: 0 });
+
   const canvasRef = useRef<HTMLDivElement>(null);
   const canvasAreaRef = useRef<HTMLDivElement>(null);
 
@@ -202,6 +208,23 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Handle device click for selection and dragging
+  const handleDeviceMouseDown = useCallback((e: React.MouseEvent, deviceIndex: number) => {
+    if (e.button !== 0) return; // Only left click
+    e.stopPropagation();
+    
+    // Select the device
+    setSelectedDeviceIndex(deviceIndex);
+    
+    // Start dragging
+    setIsDragging(true);
+    setDragDeviceIndex(deviceIndex);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    
+    const device = activeConfig.devices[deviceIndex];
+    setDeviceStartPos({ x: device.x, y: device.y });
+  }, [activeConfig.devices]);
+
   // Pan handlers
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.button === 1 || (e.button === 0 && e.altKey)) { // Middle click or Alt+click
@@ -218,11 +241,32 @@ const App: React.FC = () => {
         y: e.clientY - panStart.y
       });
     }
-  }, [isPanning, panStart]);
+    
+    // Handle device dragging
+    if (isDragging && dragDeviceIndex !== null) {
+      const dx = (e.clientX - dragStart.x) / zoom;
+      const dy = (e.clientY - dragStart.y) / zoom;
+      
+      const newDevices = [...activeConfig.devices];
+      newDevices[dragDeviceIndex] = {
+        ...newDevices[dragDeviceIndex],
+        x: deviceStartPos.x + dx,
+        y: deviceStartPos.y + dy
+      };
+      
+      updateActiveConfig({ ...activeConfig, devices: newDevices }, false);
+    }
+  }, [isPanning, panStart, isDragging, dragDeviceIndex, dragStart, deviceStartPos, zoom, activeConfig, updateActiveConfig]);
 
   const handleMouseUp = useCallback(() => {
     setIsPanning(false);
-  }, []);
+    
+    // End device drag
+    if (isDragging && dragDeviceIndex !== null) {
+      setIsDragging(false);
+      setDragDeviceIndex(null);
+    }
+  }, [isDragging, dragDeviceIndex]);
 
   // Export handlers
   const handleExportSingle = async () => {
@@ -412,7 +456,7 @@ const App: React.FC = () => {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          style={{ cursor: isPanning ? 'grabbing' : 'default' }}
+          style={{ cursor: isDragging ? 'grabbing' : isPanning ? 'grabbing' : 'default' }}
         >
           {/* Grid Pattern Background */}
           <div
@@ -428,6 +472,8 @@ const App: React.FC = () => {
             canvasRef={canvasRef}
             zoom={zoom}
             pan={pan}
+            onDeviceMouseDown={handleDeviceMouseDown}
+            selectedDeviceIndex={selectedDeviceIndex}
           />
 
           {/* Canvas Controls */}
