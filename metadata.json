@@ -1,5 +1,5 @@
 {
-  "name": "AppScreen Gen AI",
-  "description": "Generate professional App Store and Google Play screenshot mockups with AI-powered text suggestions.",
+  "name": "AppScreen Generator",
+  "description": "Generate professional App Store and Google Play screenshot mockups.",
   "requestFramePermissions": []
 }

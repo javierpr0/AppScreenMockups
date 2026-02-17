@@ -38,3 +38,9 @@ yarn-error.log*
 
 # Testing
 coverage/
+
+# AI/Claude configuration
+.claude/
+
+# Documentation with AI references
+docs/
